@@ -14,7 +14,9 @@ fi
 # If the second argument is equal to "-version" then pass "-version" to "java" program
 if [ "$1" = "-version" ]; then
     java -version
-    exit 2
+
+    # Don't touch the exit value by "java -version"
+    exit
 fi
 
 # If the second argument is not equal to "-jar" then print usage and exit
