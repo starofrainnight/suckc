@@ -14,13 +14,13 @@ fi
 # If the second argument is equal to "-version" then pass "-version" to "java" program
 if [ "$1" = "-version" ]; then
     java -version
-    exit
+    exit 2
 fi
 
 # If the second argument is not equal to "-jar" then print usage and exit
 if [ "$1" != "-jar" ]; then
     usage
-    exit 2
+    exit 3
 fi
 
 ANTLR4_BIN=$2
