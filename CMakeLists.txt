@@ -20,7 +20,6 @@ include_directories(
     ${PROJECT_BINARY_DIR}
     ${ANTLR4_INCLUDE_DIR}
     ${ANTLR4_INCLUDE_DIR_suckc})
-
 aux_source_directory("${CMAKE_CURRENT_SOURCE_DIR}/src" PROJECT_SOURCE_FILES)
 add_executable(
     ${PROJECT_NAME}
