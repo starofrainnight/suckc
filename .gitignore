@@ -1,13 +1,6 @@
 build/
 *.suckc
 .vscode
-
-# Generated files
-SuckCVisitor.*
-SuckCLexer.*
-SuckCParser.*
-SuckCListener.*
-SuckCBaseListener.*
-SuckCBaseVisitor.*
-*.interp
-*.tokens
+.antlr
+.idea
+.DS_Store

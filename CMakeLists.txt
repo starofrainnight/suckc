@@ -2,14 +2,30 @@ project(suckc)
 
 cmake_minimum_required(VERSION 3.22.1)
 
-find_path(ANTLR4_RUNTIME_BASE_DIR antlr4-runtime)
-if(ANTLR4_RUNTIME_BASE_DIR)
-    include_directories("${ANTLR4_RUNTIME_BASE_DIR}/antlr4-runtime")
-endif(ANTLR4_RUNTIME_BASE_DIR)
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
-find_library(ANTLR4_RUNTIME_LIB antlr4-runtime)
+find_package(Antlr4Ex)
+
+# generate lexer & parser
+antlr4_generate(
+    suckc
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/SuckC.g4
+    BOTH
+    TRUE
+    TRUE
+)
+
+# add directories for generated include files
+include_directories(
+    ${PROJECT_BINARY_DIR}
+    ${ANTLR4_INCLUDE_DIR}
+    ${ANTLR4_INCLUDE_DIR_suckc})
 
 aux_source_directory("${CMAKE_CURRENT_SOURCE_DIR}/src" PROJECT_SOURCE_FILES)
-
-add_executable(${PROJECT_NAME} ${PROJECT_SOURCE_FILES})
-target_link_libraries(${PROJECT_NAME} ${ANTLR4_RUNTIME_LIB})
+add_executable(
+    ${PROJECT_NAME}
+    ${PROJECT_SOURCE_FILES}
+    ${ANTLR4_SRC_FILES_suckc}
+)
+add_dependencies(${PROJECT_NAME} antlr4_shared)
+target_link_libraries(${PROJECT_NAME} PRIVATE antlr4_shared)
