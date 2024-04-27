@@ -3,12 +3,12 @@
 
 #include "TypeDefs.h"
 
-class Context {
-  SUCKC_OBJECT_DECL(Context);
+class DamnSourceContext {
+  SUCKC_OBJECT_DECL(DamnSourceContext);
 
 public:
-  Context();
-  ~Context();
+  DamnSourceContext();
+  ~DamnSourceContext();
 };
 
 #endif /* _9M_CE288385_B4D3_4126_83B9_114A31247C13 */
