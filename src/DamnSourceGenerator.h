@@ -4,10 +4,10 @@
 #include "SuckCBaseVisitor.h"
 #include "TypeDefs.h"
 
-class DamnSuckCVisitor : public SuckCBaseVisitor {
+class DamnSourceGenerator : public SuckCBaseVisitor {
 public:
-  DamnSuckCVisitor();
-  virtual ~DamnSuckCVisitor();
+  DamnSourceGenerator();
+  virtual ~DamnSourceGenerator();
 };
 
 #endif /* _9M_B7A6FE46_C563_4C35_A308_A3F9FAE49556 */

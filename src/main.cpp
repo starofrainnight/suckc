@@ -1,4 +1,4 @@
-#include "DamnSuckCVisitor.h"
+#include "DamnSourceGenerator.h"
 #include "SuckCLexer.h"
 #include "SuckCParser.h"
 #include <antlr4-runtime.h>
@@ -39,7 +39,7 @@ int main(int argc, char *argv[]) {
   antlr4::CommonTokenStream tokens(&lexer);
   SuckCParser parser(&tokens);
   SuckCParser::CompilationUnitContext *tree = parser.compilationUnit();
-  DamnSuckCVisitor visitor;
+  DamnSourceGenerator visitor;
 
   visitor.visit(tree);
   return 0;
