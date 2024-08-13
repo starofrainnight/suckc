@@ -1,7 +1,9 @@
 #ifndef _9M_AD13CD6B_FD71_40E1_AA17_F3DA14C8F867
 #define _9M_AD13CD6B_FD71_40E1_AA17_F3DA14C8F867
 
-#include "SuckCScope.h"
+#include "Scope.h"
+
+namespace suckc {
 
 /**
  * A block statement code is a series statements that chain together.
@@ -18,12 +20,14 @@
  * b = func3(func4(c));
  * @endcode
  */
-class SuckCBlock : public SuckCScope {
-  SUCKC_OBJECT_DECL(SuckCBlock);
+class Block : public Scope {
+  SUCKC_OBJECT_DECL(Block);
 
 public:
-  SuckCBlock();
-  ~SuckCBlock();
+  Block();
+  ~Block();
 };
+
+} // namespace suckc
 
 #endif /* _9M_AD13CD6B_FD71_40E1_AA17_F3DA14C8F867 */

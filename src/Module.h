@@ -1,14 +1,18 @@
 #ifndef _9M_F7D55327_EE07_4AF1_8366_F7D91D79C13C
 #define _9M_F7D55327_EE07_4AF1_8366_F7D91D79C13C
 
-#include "SuckCScope.h"
+#include "Scope.h"
 
-class SuckCModule : public SuckCScope {
-  SUCKC_OBJECT_DECL(SuckCModule);
+namespace suckc {
+
+class Module : public Scope {
+  SUCKC_OBJECT_DECL(Module);
 
 public:
-  SuckCModule(/* args */);
-  ~SuckCModule();
+  Module(/* args */);
+  ~Module();
 };
+
+} // namespace suckc
 
 #endif /* _9M_F7D55327_EE07_4AF1_8366_F7D91D79C13C */

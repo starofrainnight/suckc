@@ -40,7 +40,7 @@ int main(int argc, char *argv[]) {
   SuckCParser parser(&tokens);
   // Entry point is compilationUnit
   SuckCParser::CompilationUnitContext *tree = parser.compilationUnit();
-  DamnSourceGenerator visitor;
+  suckc::DamnSourceGenerator visitor;
 
   visitor.visit(tree);
 

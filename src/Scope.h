@@ -3,12 +3,16 @@
 
 #include "TypeDefs.h"
 
-class SuckCScope {
-  SUCKC_OBJECT_DECL(SuckCScope);
+namespace suckc {
+
+class Scope {
+  SUCKC_OBJECT_DECL(Scope);
 
 public:
-  SuckCScope();
-  ~SuckCScope();
+  Scope();
+  ~Scope();
 };
+
+} // namespace suckc
 
 #endif /* _9M_C5F79C4F_C2AE_4BAD_AAF7_D1357ABEA463 */

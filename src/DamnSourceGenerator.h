@@ -5,6 +5,7 @@
 #include "TypeDefs.h"
 #include <iostream>
 
+namespace suckc {
 class DamnSourceGenerator : public SuckCBaseVisitor {
 public:
   DamnSourceGenerator();
@@ -15,5 +16,7 @@ public:
     return SuckCBaseVisitor::visitChildren(node);
   }
 };
+
+} // namespace suckc
 
 #endif /* _9M_B7A6FE46_C563_4C35_A308_A3F9FAE49556 */
