@@ -1,4 +1,4 @@
-#include "DamnSourceGenerator.h"
+#include "SourceGenerator.h"
 #include "SuckCLexer.h"
 #include "SuckCParser.h"
 #include <antlr4-runtime.h>
@@ -40,7 +40,7 @@ int main(int argc, char *argv[]) {
   SuckCParser parser(&tokens);
   // Entry point is compilationUnit
   SuckCParser::CompilationUnitContext *tree = parser.compilationUnit();
-  suckc::DamnSourceGenerator visitor;
+  suckc::SourceGenerator visitor;
 
   visitor.visit(tree);
 

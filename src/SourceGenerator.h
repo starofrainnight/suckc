@@ -6,10 +6,10 @@
 #include <iostream>
 
 namespace suckc {
-class DamnSourceGenerator : public SuckCBaseVisitor {
+class SourceGenerator : public SuckCBaseVisitor {
 public:
-  DamnSourceGenerator();
-  virtual ~DamnSourceGenerator();
+  SourceGenerator();
+  virtual ~SourceGenerator();
 
   virtual std::any visitChildren(antlr4::tree::ParseTree *node) override {
     std::cout << "Text: " << node->getText() << std::endl;

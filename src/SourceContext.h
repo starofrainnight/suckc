@@ -4,12 +4,12 @@
 #include "TypeDefs.h"
 
 namespace suckc {
-class DamnSourceContext {
-  SUCKC_OBJECT_DECL(DamnSourceContext);
+class SourceContext {
+  SUCKC_OBJECT_DECL(SourceContext);
 
 public:
-  DamnSourceContext();
-  ~DamnSourceContext();
+  SourceContext();
+  ~SourceContext();
 };
 
 } // namespace suckc
