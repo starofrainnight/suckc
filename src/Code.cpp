@@ -13,7 +13,7 @@ public:
   //   std::list<std::string>
 };
 
-Code::Code() : dPtr_(new CodePrivate(this)) {}
+Code::Code() : Scope(StatementScope), dPtr_(new CodePrivate(this)) {}
 
 Code::~Code() {}
 

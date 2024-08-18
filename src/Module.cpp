@@ -8,8 +8,8 @@ class ModulePrivate {
 public:
 };
 
-Module::Module() : dPtr_(new ModulePrivate(this)) {}
+Module::Module() : Scope(GlobalScope), dPtr_(new ModulePrivate(this)) {}
 
-Module::~Module() { delete dPtr_; }
+Module::~Module() {}
 
-}
+} // namespace suckc
