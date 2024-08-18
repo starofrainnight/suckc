@@ -2,7 +2,7 @@
 #define _9M_CE288385_B4D3_4126_83B9_114A31247C13
 
 #include "Scope.h"
-#include "TypeDefs.h"
+#include "SuckTypes.h"
 
 namespace suckc {
 class SourceContext {
