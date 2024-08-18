@@ -1,7 +1,16 @@
 #include "SourceGenerator.h"
-
+#include "SourceContext.h"
 namespace suckc {
-SourceGenerator::SourceGenerator() {}
+
+class SourceGeneratorPrivate {
+  SUCKC_OBJECT_IMPL(SourceGenerator)
+
+public:
+  SourceContext ctx;
+};
+
+SourceGenerator::SourceGenerator() : dPtr_(new SourceGeneratorPrivate(this)) {}
+
 SourceGenerator::~SourceGenerator() {}
 
 } // namespace suckc

@@ -1,6 +1,7 @@
 #ifndef _9M_CE288385_B4D3_4126_83B9_114A31247C13
 #define _9M_CE288385_B4D3_4126_83B9_114A31247C13
 
+#include "Scope.h"
 #include "TypeDefs.h"
 
 namespace suckc {
@@ -10,6 +11,11 @@ class SourceContext {
 public:
   SourceContext();
   ~SourceContext();
+
+  size_t getScopeCount() const;
+  ScopeList::iterator getCurrentScope() const;
+  void beginScope(ScopeType scopeType);
+  void endScope();
 };
 
 } // namespace suckc

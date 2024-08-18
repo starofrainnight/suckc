@@ -7,6 +7,8 @@
 
 namespace suckc {
 class SourceGenerator : public SuckCBaseVisitor {
+  SUCKC_OBJECT_DECL(SourceGenerator);
+
 public:
   SourceGenerator();
   virtual ~SourceGenerator();
