@@ -19,7 +19,21 @@ public:
 
   std::string getNodeRuleName(antlr4::tree::ParseTree *node);
   std::string getNodeStartTokenText(antlr4::tree::ParseTree *node);
+
+  /**
+   * @brief Get the token text of a parse tree node
+   * 
+   * This function collects and concatenates the text content of all tokens 
+   * under the given parse tree node. It is useful when generating source 
+   * code, especially when considering the original text content of nodes.
+   * 
+   * @param node A pointer to the parse tree node. This is the starting node
+   * from which we collect token text.
+   * @return std::string Returns a string containing the concatenated text
+   * content of all tokens under the node, separated by spaces.
+   */
   std::string getNodeTokensText(antlr4::tree::ParseTree *node);
+  std::string getNodeSource(antlr4::tree::ParseTree *node);
 
   int indent = -1;
   SuckCParser *parser;
@@ -54,8 +68,6 @@ std::string
 SourceGeneratorPrivate::getNodeRuleName(antlr4::tree::ParseTree *node) {
   antlr4::ParserRuleContext *context =
       dynamic_cast<antlr4::ParserRuleContext *>(node);
-  std::string name;
-
   if (context != nullptr) {
     // Get the rule index of this node
     int ruleIndex = context->getRuleIndex();
@@ -71,7 +83,7 @@ SourceGeneratorPrivate::getNodeRuleName(antlr4::tree::ParseTree *node) {
     }
   }
 
-  return name;
+  return "";
 }
 std::string
 SourceGeneratorPrivate::getNodeStartTokenText(antlr4::tree::ParseTree *node) {
@@ -104,6 +116,33 @@ SourceGeneratorPrivate::getNodeTokensText(antlr4::tree::ParseTree *node) {
 
   return text;
 }
+
+std::string
+SourceGeneratorPrivate::getNodeSource(antlr4::tree::ParseTree *node) {
+
+  // Traverse the tree to find the node of interest
+  // For simplicity, we will just use the root node in this example
+  if (node != nullptr) {
+    antlr4::ParserRuleContext *ctx =
+        dynamic_cast<antlr4::ParserRuleContext *>(node);
+    if (ctx != nullptr) {
+      // Get the start and stop tokens
+      antlr4::Token *startToken = ctx->start;
+      antlr4::Token *stopToken = ctx->stop;
+
+      // Get the TokenStream from the lexer
+      antlr4::TokenStream *tokenStream = parser->getTokenStream();
+
+      // Get the source code block between the start and stop tokens
+      std::string sourceCodeBlock = tokenStream->getText(antlr4::misc::Interval(
+          startToken->getTokenIndex(), stopToken->getTokenIndex()));
+
+      return sourceCodeBlock;
+    }
+  }
+  return "";
+}
+
 SourceGenerator::SourceGenerator(SuckCParser *parser)
     : dPtr_(new SourceGeneratorPrivate(this)) {
   SUCKC_D();
