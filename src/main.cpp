@@ -40,9 +40,9 @@ int main(int argc, char *argv[]) {
   SuckCParser parser(&tokens);
   // Entry point is compilationUnit
   SuckCParser::CompilationUnitContext *tree = parser.compilationUnit();
-  suckc::SourceGenerator visitor;
 
-  std::cout << tree->toStringTree(true) << "\n";
+  suckc::SourceGenerator visitor(&parser);
+
   visitor.visit(tree);
 
   return 0;

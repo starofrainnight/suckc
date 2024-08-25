@@ -4,6 +4,8 @@ cmake_minimum_required(VERSION 3.22.1)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
+include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/options.cmake")
+
 find_package(Antlr4Ex)
 
 # generate lexer & parser
