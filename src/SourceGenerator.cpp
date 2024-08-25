@@ -14,11 +14,41 @@ public:
     return std::string(indenttion * 2, ' ');
   }
 
+  std::vector<std::string> collectTokenText(antlr4::tree::ParseTree *node);
+  std::vector<std::string> collectTokenText(antlr4::tree::TerminalNode *node);
+
   std::string getNodeRuleName(antlr4::tree::ParseTree *node);
+  std::string getNodeStartTokenText(antlr4::tree::ParseTree *node);
+  std::string getNodeTokensText(antlr4::tree::ParseTree *node);
 
   int indenttion = -1;
   SuckCParser *parser;
 };
+
+std::vector<std::string>
+SourceGeneratorPrivate::collectTokenText(antlr4::tree::TerminalNode *node) {
+  // This function collects the text of a terminal node.
+  return {node->getText()};
+}
+
+std::vector<std::string>
+SourceGeneratorPrivate::collectTokenText(antlr4::tree::ParseTree *node) {
+  // This function collects the text of all tokens under a given non-terminal node.
+  std::vector<std::string> tokens;
+
+  for (auto child : node->children) {
+    if (auto terminalNode = dynamic_cast<antlr4::tree::TerminalNode *>(child)) {
+      auto childTokens = collectTokenText(terminalNode);
+
+      tokens.insert(tokens.end(), childTokens.begin(), childTokens.end());
+    } else if (auto ruleNode = dynamic_cast<antlr4::RuleContext *>(child)) {
+      auto childTokens = collectTokenText(ruleNode);
+      tokens.insert(tokens.end(), childTokens.begin(), childTokens.end());
+    }
+  }
+
+  return tokens;
+}
 
 std::string
 SourceGeneratorPrivate::getNodeRuleName(antlr4::tree::ParseTree *node) {
@@ -43,7 +73,37 @@ SourceGeneratorPrivate::getNodeRuleName(antlr4::tree::ParseTree *node) {
 
   return name;
 }
+std::string
+SourceGeneratorPrivate::getNodeStartTokenText(antlr4::tree::ParseTree *node) {
+  if (node != nullptr) {
+    antlr4::ParserRuleContext *ctx =
+        dynamic_cast<antlr4::ParserRuleContext *>(node);
+    if (ctx != nullptr) {
+      // Get the start token of the context
+      auto startToken = ctx->start;
 
+      // Get the text associated with the start token
+      auto nodeText = startToken->getText();
+
+      return nodeText;
+    }
+  }
+
+  return "";
+}
+
+std::string
+SourceGeneratorPrivate::getNodeTokensText(antlr4::tree::ParseTree *node) {
+  auto texts = collectTokenText(node);
+
+  std::string text;
+  for (auto i = 0; i < texts.size(); ++i) {
+    text.append(texts[i]);
+    text.append(" ");
+  }
+
+  return text;
+}
 SourceGenerator::SourceGenerator(SuckCParser *parser)
     : dPtr_(new SourceGeneratorPrivate(this)) {
   SUCKC_D();
@@ -57,7 +117,8 @@ std::any SourceGenerator::visitChildren(antlr4::tree::ParseTree *node) {
   ++d->indenttion;
 
 #ifdef SUCKC_TRACE_NODE_TREE
-  std::cout << d->getIndentText() << d->getNodeRuleName(node) << "\n";
+  std::cout << d->getIndentText() << d->getNodeRuleName(node) << ": "
+            << d->getNodeStartTokenText(node) << "\n";
 #endif
 
   auto ret = SuckCBaseVisitor::visitChildren(node);
