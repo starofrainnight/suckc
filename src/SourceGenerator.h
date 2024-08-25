@@ -18,6 +18,17 @@ public:
   visitFunctionDefinition(SuckCParser::FunctionDefinitionContext *ctx) override;
   std::any visitExternalDeclaration(
       SuckCParser::ExternalDeclarationContext *ctx) override;
+
+  /**
+   * Visit statements that surround by "{" & "}"
+   */
+  std::any
+  visitCompoundStatement(SuckCParser::CompoundStatementContext *ctx) override;
+
+  /**
+   * Visit statements that surround by ";"
+   */
+  std::any visitBlockItem(SuckCParser::BlockItemContext *ctx) override;
 };
 
 } // namespace suckc

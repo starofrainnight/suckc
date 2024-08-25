@@ -144,4 +144,21 @@ std::any SourceGenerator::visitExternalDeclaration(
   return visitChildren(ctx);
 }
 
+std::any SourceGenerator::visitCompoundStatement(
+    SuckCParser::CompoundStatementContext *ctx) {
+  SUCKC_D();
+  d->ctx.beginScope(ScopeType::BlockScope);
+  auto ret = visitChildren(ctx);
+  d->ctx.endScope();
+  return ret;
+}
+
+std::any SourceGenerator::visitBlockItem(SuckCParser::BlockItemContext *ctx) {
+  SUCKC_D();
+  d->ctx.beginScope(ScopeType::StatementScope);
+  auto ret = visitChildren(ctx);
+  d->ctx.endScope();
+  return ret;
+}
+
 } // namespace suckc

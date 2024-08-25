@@ -15,6 +15,7 @@ public:
   const ScopeList &getScopes() const;
   size_t getScopeCount() const;
   ScopeList::iterator getCurrentScope() const;
+
   void beginScope(ScopeType scopeType);
   void endScope();
 };
