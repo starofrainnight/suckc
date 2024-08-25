@@ -11,7 +11,7 @@ public:
   SourceContext ctx;
 
   inline std::string getIndentText() const {
-    return std::string(indenttion * 2, ' ');
+    return std::string(indent * 2, ' ');
   }
 
   std::vector<std::string> collectTokenText(antlr4::tree::ParseTree *node);
@@ -21,7 +21,7 @@ public:
   std::string getNodeStartTokenText(antlr4::tree::ParseTree *node);
   std::string getNodeTokensText(antlr4::tree::ParseTree *node);
 
-  int indenttion = -1;
+  int indent = -1;
   SuckCParser *parser;
 };
 
@@ -114,7 +114,7 @@ SourceGenerator::~SourceGenerator() {}
 std::any SourceGenerator::visitChildren(antlr4::tree::ParseTree *node) {
   SUCKC_D();
 
-  ++d->indenttion;
+  ++d->indent;
 
 #ifdef SUCKC_TRACE_NODE_TREE
   std::cout << d->getIndentText() << d->getNodeRuleName(node) << ": "
@@ -123,7 +123,7 @@ std::any SourceGenerator::visitChildren(antlr4::tree::ParseTree *node) {
 
   auto ret = SuckCBaseVisitor::visitChildren(node);
 
-  --d->indenttion;
+  --d->indent;
 
   return ret;
 }
