@@ -13,10 +13,11 @@ public:
   SourceGenerator();
   virtual ~SourceGenerator();
 
-  virtual std::any visitChildren(antlr4::tree::ParseTree *node) override {
-    std::cout << "Text: " << node->getText() << std::endl;
-    return SuckCBaseVisitor::visitChildren(node);
-  }
+  std::any visitChildren(antlr4::tree::ParseTree *node) override;
+  std::any
+  visitFunctionDefinition(SuckCParser::FunctionDefinitionContext *ctx) override;
+  std::any visitExternalDeclaration(
+      SuckCParser::ExternalDeclarationContext *ctx) override;
 };
 
 } // namespace suckc

@@ -42,6 +42,7 @@ int main(int argc, char *argv[]) {
   SuckCParser::CompilationUnitContext *tree = parser.compilationUnit();
   suckc::SourceGenerator visitor;
 
+  std::cout << tree->toStringTree(true) << "\n";
   visitor.visit(tree);
 
   return 0;

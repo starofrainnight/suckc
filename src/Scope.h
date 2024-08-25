@@ -7,7 +7,6 @@
 namespace suckc {
 enum ScopeType {
   GlobalScope,
-  ClassScope,
   FunctionScope,
   BlockScope,
   StatementScope,

@@ -1,6 +1,6 @@
-
 #include "SourceContext.h"
 #include "Scope.h"
+#include "ast/Node.h"
 #include <deque>
 #include <list>
 #include <memory>
@@ -15,9 +15,16 @@ public:
   ScopeList scopes;
 };
 
-SourceContext::SourceContext() : dPtr_(new SourceContextPrivate(this)) {}
+SourceContext::SourceContext() : dPtr_(new SourceContextPrivate(this)) {
+  beginScope(ScopeType::GlobalScope);
+}
 
-SourceContext::~SourceContext() {}
+SourceContext::~SourceContext() { endScope(); }
+
+const ScopeList &SourceContext::getScopes() const {
+  SUCKC_D();
+  return d->scopes;
+}
 
 size_t SourceContext::getScopeCount() const {
   SUCKC_D();
