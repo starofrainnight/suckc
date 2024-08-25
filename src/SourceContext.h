@@ -18,6 +18,10 @@ public:
 
   void beginScope(ScopeType scopeType);
   void endScope();
+
+  std::shared_ptr<suckc::ast::Variable> findVariable(const std::string &name);
+  void addVariable(const std::string &name,
+                   const std::shared_ptr<suckc::ast::Variable> &var);
 };
 
 } // namespace suckc

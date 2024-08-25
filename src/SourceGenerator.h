@@ -29,6 +29,8 @@ public:
    * Visit statements that surround by ";"
    */
   std::any visitBlockItem(SuckCParser::BlockItemContext *ctx) override;
+
+  std::any visitDeclaration(SuckCParser::DeclarationContext *ctx) override;
 };
 
 } // namespace suckc

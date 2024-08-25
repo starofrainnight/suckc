@@ -48,4 +48,22 @@ void SourceContext::endScope() {
   d->scopes.pop_back();
 }
 
+std::shared_ptr<suckc::ast::Variable>
+SourceContext::findVariable(const std::string &name) {
+  SUCKC_D();
+  for (auto it = d->scopes.rbegin(); it != d->scopes.rend(); ++it) {
+    auto var = (*it)->findVariable(name);
+    if (var != nullptr) {
+      return var;
+    }
+  }
+
+  return nullptr;
+}
+
+void SourceContext::addVariable(
+    const std::string &name, const std::shared_ptr<suckc::ast::Variable> &var) {
+  (*getCurrentScope())->addVariable(name, var);
+}
+
 } // namespace suckc
