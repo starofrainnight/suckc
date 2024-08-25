@@ -14,9 +14,35 @@ public:
     return std::string(indenttion * 2, ' ');
   }
 
+  std::string getNodeRuleName(antlr4::tree::ParseTree *node);
+
   int indenttion = -1;
   SuckCParser *parser;
 };
+
+std::string
+SourceGeneratorPrivate::getNodeRuleName(antlr4::tree::ParseTree *node) {
+  antlr4::ParserRuleContext *context =
+      dynamic_cast<antlr4::ParserRuleContext *>(node);
+  std::string name;
+
+  if (context != nullptr) {
+    // Get the rule index of this node
+    int ruleIndex = context->getRuleIndex();
+
+    // Get the parser from which you can retrieve rule names
+    if (parser != nullptr) {
+      // Retrieve the rule name using the rule index
+      std::vector<std::string> ruleNames = parser->getRuleNames();
+      std::string ruleName = ruleNames[ruleIndex];
+
+      // Now you have the rule name, you can do something with it
+      return ruleName;
+    }
+  }
+
+  return name;
+}
 
 SourceGenerator::SourceGenerator(SuckCParser *parser)
     : dPtr_(new SourceGeneratorPrivate(this)) {
@@ -31,33 +57,11 @@ std::any SourceGenerator::visitChildren(antlr4::tree::ParseTree *node) {
   ++d->indenttion;
 
 #ifdef SUCKC_TRACE_NODE_TREE
-  // Cast the node to a ParserRuleContext to access the rule context
-  antlr4::ParserRuleContext *context =
-      dynamic_cast<antlr4::ParserRuleContext *>(node);
-
-  if (context != nullptr) {
-    // Get the rule index of this node
-    int ruleIndex = context->getRuleIndex();
-
-    // Get the parser from which you can retrieve rule names
-    auto parser = d->parser;
-
-    if (parser != nullptr) {
-      // Retrieve the rule name using the rule index
-      std::vector<std::string> ruleNames = parser->getRuleNames();
-      std::string ruleName = ruleNames[ruleIndex];
-
-      // Now you have the rule name, you can do something with it
-      std::cout << d->getIndentText() << ruleName << "\n";
-    }
-  }
-
+  std::cout << d->getIndentText() << d->getNodeRuleName(node) << "\n";
 #endif
 
-  std::any ret = SuckCBaseVisitor::visitChildren(node);
-#ifdef SUCKC_TRACE_NODE_TREE
+  auto ret = SuckCBaseVisitor::visitChildren(node);
 
-#endif
   --d->indenttion;
 
   return ret;
@@ -68,8 +72,6 @@ std::any SourceGenerator::visitFunctionDefinition(
   SUCKC_D();
 
   d->ctx.beginScope(ScopeType::FunctionScope);
-
-  // std::cout << "got function: " << ctx->getText() << std::endl;
   auto ret = visitChildren(ctx);
   d->ctx.endScope();
   return ret;
@@ -78,8 +80,6 @@ std::any SourceGenerator::visitFunctionDefinition(
 std::any SourceGenerator::visitExternalDeclaration(
     SuckCParser::ExternalDeclarationContext *ctx) {
   SUCKC_D();
-  // std::cout << "Extern Declaration: " << std::hex
-  //           << (uintptr_t)ctx->functionDefinition() << std::endl;
   return visitChildren(ctx);
 }
 
