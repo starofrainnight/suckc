@@ -171,6 +171,12 @@ std::any SourceGenerator::visitFunctionDefinition(
     SuckCParser::FunctionDefinitionContext *ctx) {
   SUCKC_D();
 
+  auto scope = d->ctx.getCurrentScope();
+  auto func = std::make_shared<suckc::ast::Function>();
+  auto name = d->getNodeStartTokenText(ctx->declarator());
+  func->setName(name);
+  (*scope)->addFunction(name, func);
+
   d->ctx.beginScope(ScopeType::FunctionScope);
   auto ret = visitChildren(ctx);
   d->ctx.endScope();

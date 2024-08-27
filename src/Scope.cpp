@@ -1,4 +1,5 @@
 #include "Scope.h"
+#include "ast/Function.h"
 #include <unordered_map>
 
 namespace suckc {
@@ -10,8 +11,12 @@ public:
   typedef std::unordered_map<std::string, std::shared_ptr<suckc::ast::Variable>>
       VariableMap;
 
+  typedef std::unordered_map<std::string, std::shared_ptr<suckc::ast::Function>>
+      FunctionMap;
+
   ScopeType type;
   VariableMap variables;
+  FunctionMap funcs;
 };
 
 Scope::Scope(ScopeType type) : dPtr_(new ScopePrivate(this)) {
@@ -41,6 +46,22 @@ void Scope::addVariable(const std::string &name,
                         const std::shared_ptr<suckc::ast::Variable> &var) {
   SUCKC_D();
   d->variables[name] = var;
+}
+
+std::shared_ptr<suckc::ast::Function>
+Scope::findFunction(const std::string &name) {
+  SUCKC_D();
+  auto it = d->funcs.find(name);
+  if (it != d->funcs.end())
+    return it->second;
+  else
+    return nullptr;
+}
+
+void Scope::addFunction(const std::string &name,
+                        const std::shared_ptr<suckc::ast::Function> &func) {
+  SUCKC_D();
+  d->funcs[name] = func;
 }
 
 } // namespace suckc
