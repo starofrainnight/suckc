@@ -4,7 +4,12 @@
 #include "Node.h"
 namespace suckc {
 namespace ast {
-class Function : public Node {};
+class Function : public Node {
+public:
+  static const Type kThisNodeType = Type::Function;
+
+  Function(Type type = kThisNodeType) : Node(type) {}
+};
 
 } // namespace ast
 } // namespace suckc

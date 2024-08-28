@@ -8,13 +8,24 @@ namespace ast {
 
 class Node {
 public:
-  Node();
+  enum class Type {
+    Variable,
+    Function,
+    FunctionDeclaration,
+    Struct,
+    Count_,
+  };
+
+  Node(Type type);
   ~Node();
 
   void setName(const std::string &name) { this->name_ = name; }
   const std::string &getName() { return name_; }
 
+  Type getType() { return type_; }
+
   std::string name_;
+  Type type_;
 };
 
 } // namespace ast

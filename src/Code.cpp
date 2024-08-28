@@ -10,7 +10,6 @@ class CodePrivate {
 public:
   // Declarations
   std::list<std::string> decls;
-  //   std::list<std::string>
 };
 
 Code::Code() : Scope(StatementScope), dPtr_(new CodePrivate(this)) {}

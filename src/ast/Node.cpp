@@ -3,7 +3,7 @@
 namespace suckc {
 namespace ast {
 
-Node::Node() {}
+Node::Node(Type type) : type_(type) {}
 
 Node::~Node() {}
 

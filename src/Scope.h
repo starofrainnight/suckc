@@ -18,24 +18,33 @@ class Scope {
   SUCKC_OBJECT_DECL(Scope);
 
 public:
+  typedef ast::Node::Type NodeType;
+
   Scope(ScopeType type);
   ~Scope();
 
   ScopeType getType() const;
 
+  std::shared_ptr<ast::Node> findNode(const NodeType type,
+                                      const std::string &name);
+
   /**
-   * @brief Find variable in scope
+   * @brief Find a node in scope
    * 
    * @param name Variable name
    * @return Variable or nullptr
    */
-  std::shared_ptr<suckc::ast::Variable> findVariable(const std::string &name);
-  void addVariable(const std::string &name,
-                   const std::shared_ptr<suckc::ast::Variable> &var);
+  auto findFunction(const std::string &name) -> std::shared_ptr<ast::Function> {
+    return std::static_pointer_cast<ast::Function>(
+        findNode(NodeType::Function, name));
+  }
 
-  std::shared_ptr<suckc::ast::Function> findFunction(const std::string &name);
-  void addFunction(const std::string &name,
-                   const std::shared_ptr<suckc::ast::Function> &func);
+  auto findVariable(const std::string &name) -> std::shared_ptr<ast::Variable> {
+    return std::static_pointer_cast<ast::Variable>(
+        findNode(NodeType::Function, name));
+  }
+
+  void addNode(const std::string &name, const std::shared_ptr<ast::Node> &node);
 };
 
 typedef std::list<std::shared_ptr<Scope>> ScopeList;

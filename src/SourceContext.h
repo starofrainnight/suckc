@@ -19,9 +19,19 @@ public:
   void beginScope(ScopeType scopeType);
   void endScope();
 
-  std::shared_ptr<suckc::ast::Variable> findVariable(const std::string &name);
-  void addVariable(const std::string &name,
-                   const std::shared_ptr<suckc::ast::Variable> &var);
+  std::shared_ptr<ast::Variable> findVariable(const std::string &name) {
+    return std::static_pointer_cast<ast::Variable>(
+        findNode(ast::Variable::kThisNodeType, name));
+  }
+
+  std::shared_ptr<ast::Function> findFunction(const std::string &name) {
+    return std::static_pointer_cast<ast::Function>(
+        findNode(ast::Function::kThisNodeType, name));
+  }
+
+  std::shared_ptr<ast::Node> findNode(const ast::Node::Type &type,
+                                      const std::string &name);
+  void addNode(const std::string &name, const std::shared_ptr<ast::Node> &var);
 };
 
 } // namespace suckc

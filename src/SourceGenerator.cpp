@@ -175,7 +175,7 @@ std::any SourceGenerator::visitFunctionDefinition(
   auto func = std::make_shared<suckc::ast::Function>();
   auto name = d->getNodeStartTokenText(ctx->declarator());
   func->setName(name);
-  (*scope)->addFunction(name, func);
+  (*scope)->addNode(name, func);
 
   d->ctx.beginScope(ScopeType::FunctionScope);
   auto ret = visitChildren(ctx);
@@ -216,13 +216,13 @@ SourceGenerator::visitDeclaration(SuckCParser::DeclarationContext *ctx) {
       auto var = std::make_shared<suckc::ast::Variable>();
       auto name = d->getNodeStartTokenText(decl);
       var->setName(name);
-      (*scope)->addVariable(name, var);
+      (*scope)->addNode(name, var);
     }
   } else {
     auto lastSpecifier = ctx->declarationSpecifiers()->children.back();
     auto var = std::make_shared<suckc::ast::Variable>();
     auto name = d->getNodeStartTokenText(lastSpecifier);
-    (*scope)->addVariable(name, var);
+    (*scope)->addNode(name, var);
   }
 
   return visitChildren(ctx);

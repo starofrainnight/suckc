@@ -8,15 +8,10 @@ class ScopePrivate {
   SUCKC_OBJECT_IMPL(Scope)
 
 public:
-  typedef std::unordered_map<std::string, std::shared_ptr<suckc::ast::Variable>>
-      VariableMap;
-
-  typedef std::unordered_map<std::string, std::shared_ptr<suckc::ast::Function>>
-      FunctionMap;
+  typedef std::unordered_map<std::string, std::shared_ptr<ast::Node>> NodeMap;
 
   ScopeType type;
-  VariableMap variables;
-  FunctionMap funcs;
+  NodeMap nodes[static_cast<int>(ast::Node::Type::Count_)];
 };
 
 Scope::Scope(ScopeType type) : dPtr_(new ScopePrivate(this)) {
@@ -31,37 +26,22 @@ ScopeType Scope::getType() const {
   return d->type;
 }
 
-std::shared_ptr<suckc::ast::Variable>
-Scope::findVariable(const std::string &name) {
+std::shared_ptr<ast::Node> Scope::findNode(const NodeType type,
+                                           const std::string &name) {
   SUCKC_D();
-
-  auto it = d->variables.find(name);
-  if (it != d->variables.end())
+  auto nodeMap = &d->nodes[static_cast<int>(type)];
+  auto it = nodeMap->find(name);
+  if (it != nodeMap->end())
     return it->second;
   else
     return nullptr;
 }
 
-void Scope::addVariable(const std::string &name,
-                        const std::shared_ptr<suckc::ast::Variable> &var) {
+void Scope::addNode(const std::string &name,
+                    const std::shared_ptr<ast::Node> &node) {
   SUCKC_D();
-  d->variables[name] = var;
-}
-
-std::shared_ptr<suckc::ast::Function>
-Scope::findFunction(const std::string &name) {
-  SUCKC_D();
-  auto it = d->funcs.find(name);
-  if (it != d->funcs.end())
-    return it->second;
-  else
-    return nullptr;
-}
-
-void Scope::addFunction(const std::string &name,
-                        const std::shared_ptr<suckc::ast::Function> &func) {
-  SUCKC_D();
-  d->funcs[name] = func;
+  auto &nodeMap = d->nodes[static_cast<int>(node->getType())];
+  nodeMap[name] = node;
 }
 
 } // namespace suckc

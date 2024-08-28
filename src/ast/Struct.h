@@ -5,7 +5,12 @@
 
 namespace suckc {
 namespace ast {
-class Struct : public Node {};
+class Struct : public Node {
+public:
+  static const Type kThisNodeType = Type::Struct;
+
+  Struct(Type type = kThisNodeType) : Node(type) {}
+};
 
 } // namespace ast
 } // namespace suckc

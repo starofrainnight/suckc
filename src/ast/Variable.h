@@ -8,10 +8,14 @@ namespace suckc {
 namespace ast {
 class Variable : public Node {
 public:
-  void setType(const std::string &type) { type_ = type; }
-  const std::string getType() { return type_; }
+  static const Type kThisNodeType = Type::Variable;
 
-  std::string type_;
+  Variable(Type type = kThisNodeType) : Node(type) {}
+
+  void setValueType(const std::string &type) { valueType_ = type; }
+  const std::string getValueType() { return valueType_; }
+
+  std::string valueType_;
 };
 
 } // namespace ast
