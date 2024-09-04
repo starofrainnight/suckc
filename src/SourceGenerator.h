@@ -16,8 +16,8 @@ public:
   std::any visitChildren(antlr4::tree::ParseTree *node) override;
   std::any
   visitFunctionDefinition(SuckCParser::FunctionDefinitionContext *ctx) override;
-  std::any visitExternalDeclaration(
-      SuckCParser::ExternalDeclarationContext *ctx) override;
+  std::any
+  visitItemDefinition(SuckCParser::ItemDefinitionContext *ctx) override;
 
   /**
    * Visit statements that surround by "{" & "}"

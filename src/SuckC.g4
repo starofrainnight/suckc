@@ -501,14 +501,14 @@ jumpStatement
     ;
 
 compilationUnit
-    : translationUnit? EOF
+    : itemDefinitionList? EOF
     ;
 
-translationUnit
-    : externalDeclaration+
+itemDefinitionList
+    : itemDefinition+
     ;
 
-externalDeclaration
+itemDefinition
     : functionDefinition
     | declaration
     | ';' // stray ;

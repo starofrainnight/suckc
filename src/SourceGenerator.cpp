@@ -183,9 +183,10 @@ std::any SourceGenerator::visitFunctionDefinition(
   return ret;
 }
 
-std::any SourceGenerator::visitExternalDeclaration(
-    SuckCParser::ExternalDeclarationContext *ctx) {
+std::any
+SourceGenerator::visitItemDefinition(SuckCParser::ItemDefinitionContext *ctx) {
   SUCKC_D();
+
   return visitChildren(ctx);
 }
 
