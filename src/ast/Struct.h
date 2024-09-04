@@ -7,9 +7,9 @@ namespace suckc {
 namespace ast {
 class Struct : public Node {
 public:
-  static const Type kThisNodeType = Type::Struct;
+  static const Type kNodeType = Type::Struct;
 
-  Struct(Type type = kThisNodeType) : Node(type) {}
+  Struct(Type type = kNodeType) : Node(type) {}
 };
 
 } // namespace ast

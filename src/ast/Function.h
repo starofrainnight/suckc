@@ -6,9 +6,9 @@ namespace suckc {
 namespace ast {
 class Function : public Node {
 public:
-  static const Type kThisNodeType = Type::Function;
+  static const Type kNodeType = Type::Function;
 
-  Function(Type type = kThisNodeType) : Node(type) {}
+  Function(Type type = kNodeType) : Node(type) {}
 };
 
 } // namespace ast

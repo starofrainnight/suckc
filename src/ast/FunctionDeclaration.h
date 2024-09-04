@@ -6,9 +6,9 @@ namespace suckc {
 namespace ast {
 class FunctionDeclaration : public Node {
 public:
-  static const Type kThisNodeType = Type::FunctionDeclaration;
+  static const Type kNodeType = Type::FunctionDeclaration;
 
-  FunctionDeclaration(Type type = kThisNodeType) : Node(type) {}
+  FunctionDeclaration(Type type = kNodeType) : Node(type) {}
 };
 
 } // namespace ast

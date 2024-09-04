@@ -8,9 +8,9 @@ namespace suckc {
 namespace ast {
 class Statement : public Node {
 public:
-  static const Type kThisNodeType = Type::Variable;
+  static const Type kNodeType = Type::Variable;
 
-  Statement(Type type = kThisNodeType) : Node(type) {}
+  Statement(Type type = kNodeType) : Node(type) {}
 };
 
 } // namespace ast

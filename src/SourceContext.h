@@ -21,12 +21,12 @@ public:
 
   std::shared_ptr<ast::Variable> findVariable(const std::string &name) {
     return std::static_pointer_cast<ast::Variable>(
-        findNode(ast::Variable::kThisNodeType, name));
+        findNode(ast::Variable::kNodeType, name));
   }
 
   std::shared_ptr<ast::Function> findFunction(const std::string &name) {
     return std::static_pointer_cast<ast::Function>(
-        findNode(ast::Function::kThisNodeType, name));
+        findNode(ast::Function::kNodeType, name));
   }
 
   std::shared_ptr<ast::Node> findNode(const ast::Node::Type &type,

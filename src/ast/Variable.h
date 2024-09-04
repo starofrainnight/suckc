@@ -8,9 +8,9 @@ namespace suckc {
 namespace ast {
 class Variable : public Node {
 public:
-  static const Type kThisNodeType = Type::Variable;
+  static const Type kNodeType = Type::Variable;
 
-  Variable(Type type = kThisNodeType) : Node(type) {}
+  Variable(Type type = kNodeType) : Node(type) {}
 
   void setValueType(const std::string &type) { valueType_ = type; }
   const std::string getValueType() { return valueType_; }
