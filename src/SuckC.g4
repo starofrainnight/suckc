@@ -320,6 +320,18 @@ directDeclarator
     | '(' vcSpecificModifer declarator ')' // Visual C Extension
     ;
 
+variantName
+    : Identifier
+    ;
+
+functionVariantDeclarator
+    : declarationSpecifiers '(' Star variantName ')' '(' ')'
+    ;
+
+variantDeclaration
+    : functionVariantDeclarator ('=' initializer)? ';'
+    ;
+
 vcSpecificModifer
     : '__cdecl'
     | '__clrcall'
@@ -510,6 +522,7 @@ itemDefinitionList
 
 itemDefinition
     : functionDefinition
+    | variantDeclaration
     | declaration
     | ';' // stray ;
     ;
