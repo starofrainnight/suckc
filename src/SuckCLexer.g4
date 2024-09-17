@@ -2,9 +2,4 @@
 // $antlr-format allowShortRulesOnASingleLine true, allowShortBlocksOnASingleLine true, minEmptyLines 0, alignSemicolons ownLine
 // $antlr-format alignColons trailing, singleLineOverrulesHangingColon true, alignLexerCommands true, alignLabels true, alignTrailers true
 
-parser grammar SuckC;
-
-options {
-    // superClass = SuckCParserBase;
-    tokenVocab = SuckCLexer;
-}
+lexer grammar SuckCLexer;
