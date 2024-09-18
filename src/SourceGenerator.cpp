@@ -160,7 +160,7 @@ std::any SourceGenerator::visitChildren(antlr4::tree::ParseTree *node) {
             << d->getNodeStartTokenText(node) << "\n";
 #endif
 
-  auto ret = SuckCBaseVisitor::visitChildren(node);
+  auto ret = SuckCParserBaseVisitor::visitChildren(node);
 
   --d->indent;
 
