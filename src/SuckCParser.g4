@@ -28,11 +28,12 @@
 parser grammar SuckCParser;
 
 options {
-    // superClass = SuckCParserBase;
+    superClass = SuckCParserBase;
     tokenVocab = SuckCLexer;
 }
 
 // Insert here @header for SuckC parser.
+@header { #include "SuckCParserBase.h" }
 
 /*Basic concepts*/
 

@@ -31,6 +31,7 @@ antlr4_generate(
 
     # add directories for generated include files
 include_directories(
+    "${CMAKE_CURRENT_SOURCE_DIR}/src"
     ${PROJECT_BINARY_DIR}
     ${ANTLR4_INCLUDE_DIR}
     ${ANTLR4_INCLUDE_DIR_suckc_lexer}
