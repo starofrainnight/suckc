@@ -270,7 +270,7 @@ declaration:
     | explicitSpecialization
     | linkageSpecification
     // We don't have namespace definition in SuckC language
-    | namespaceDefinition
+    //| namespaceDefinition
     | emptyDeclaration_
     | attributeDeclaration
 ;
