@@ -288,8 +288,8 @@ blockDeclaration:
 aliasDeclaration: Using Identifier attributeSpecifierSeq? Assign theTypeId Semi;
 
 simpleDeclaration:
-    declSpecifierSeq? initDeclaratorList? Semi
-    | attributeSpecifierSeq declSpecifierSeq? initDeclaratorList Semi
+    declSpecifierSeq? initDeclarator? Semi
+    | attributeSpecifierSeq declSpecifierSeq? initDeclarator Semi
 ;
 
 staticAssertDeclaration:
@@ -435,8 +435,6 @@ balancedtoken:
 ;
 
 /*Declarators*/
-
-initDeclaratorList: initDeclarator (Comma initDeclarator)*;
 
 initDeclarator: declarator initializer?;
 
