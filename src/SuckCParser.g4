@@ -176,7 +176,6 @@ logicalAndExpression: inclusiveOrExpression (AndAnd inclusiveOrExpression)*;
 logicalOrExpression: logicalAndExpression (OrOr logicalAndExpression)*;
 
 conditionalExpression: logicalOrExpression (Question expression Colon assignmentExpression)?;
-
 assignmentExpression:
     conditionalExpression
     | logicalOrExpression assignmentOperator initializerClause
@@ -265,8 +264,8 @@ declarationseq: declaration+;
 declaration:
     blockDeclaration
     | functionDefinition
-    | templateDeclaration
-    | explicitInstantiation
+    // | templateDeclaration
+    // | explicitInstantiation
     | explicitSpecialization
     | linkageSpecification
     // We don't have namespace definition in SuckC language
@@ -554,7 +553,7 @@ memberdeclaration:
     | functionDefinition
     | usingDeclaration
     | staticAssertDeclaration
-    | templateDeclaration
+    // | templateDeclaration
     | aliasDeclaration
     | emptyDeclaration_
 ;
