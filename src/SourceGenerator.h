@@ -16,8 +16,8 @@ public:
   std::any visitChildren(antlr4::tree::ParseTree *node) override;
   std::any
   visitFunctionDefinition(SuckCParser::FunctionDefinitionContext *ctx) override;
-  std::any
-  visitItemDefinition(SuckCParser::ItemDefinitionContext *ctx) override;
+  // std::any
+  // visitItemDefinition(SuckCParser::ItemDefinitionContext *ctx) override;
 
   /**
    * Visit statements that surround by "{" & "}"
@@ -28,9 +28,9 @@ public:
   /**
    * Visit statements that surround by ";"
    */
-  std::any visitBlockItem(SuckCParser::BlockItemContext *ctx) override;
+  // std::any visitBlockItem(SuckCParser::BlockItemContext *ctx) override;
 
-  std::any visitDeclaration(SuckCParser::DeclarationContext *ctx) override;
+  // std::any visitDeclaration(SuckCParser::DeclarationContext *ctx) override;
 };
 
 } // namespace suckc

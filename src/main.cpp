@@ -38,8 +38,8 @@ int main(int argc, char *argv[]) {
   SuckCLexer lexer(&input);
   antlr4::CommonTokenStream tokens(&lexer);
   SuckCParser parser(&tokens);
-  // Entry point is compilationUnit
-  SuckCParser::CompilationUnitContext *tree = parser.compilationUnit();
+  // Entry point is translationUnit
+  SuckCParser::TranslationUnitContext *tree = parser.translationUnit();
 
   suckc::SourceGenerator visitor(&parser);
 

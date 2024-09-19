@@ -269,6 +269,7 @@ declaration:
     | explicitInstantiation
     | explicitSpecialization
     | linkageSpecification
+    // We don't have namespace definition in SuckC language
     | namespaceDefinition
     | emptyDeclaration_
     | attributeDeclaration
@@ -563,8 +564,8 @@ memberDeclaratorList: memberDeclarator (Comma memberDeclarator)*;
 memberDeclarator:
     declarator (
         virtualSpecifierSeq
-        | { this.IsPureSpecifierAllowed() }? pureSpecifier
-        | { this.IsPureSpecifierAllowed() }? virtualSpecifierSeq pureSpecifier
+        | { IsPureSpecifierAllowed() }? pureSpecifier
+        | { IsPureSpecifierAllowed() }? virtualSpecifierSeq pureSpecifier
         | braceOrEqualInitializer
     )
     | declarator

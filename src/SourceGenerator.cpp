@@ -183,12 +183,12 @@ std::any SourceGenerator::visitFunctionDefinition(
   return ret;
 }
 
-std::any
-SourceGenerator::visitItemDefinition(SuckCParser::ItemDefinitionContext *ctx) {
-  SUCKC_D();
+// std::any
+// SourceGenerator::visitItemDefinition(SuckCParser::ItemDefinitionContext *ctx) {
+//   SUCKC_D();
 
-  return visitChildren(ctx);
-}
+//   return visitChildren(ctx);
+// }
 
 std::any SourceGenerator::visitCompoundStatement(
     SuckCParser::CompoundStatementContext *ctx) {
@@ -199,34 +199,34 @@ std::any SourceGenerator::visitCompoundStatement(
   return ret;
 }
 
-std::any SourceGenerator::visitBlockItem(SuckCParser::BlockItemContext *ctx) {
-  SUCKC_D();
-  d->ctx.beginScope(ScopeType::StatementScope);
-  auto ret = visitChildren(ctx);
-  d->ctx.endScope();
-  return ret;
-}
+// std::any SourceGenerator::visitBlockItem(SuckCParser::BlockItemContext *ctx) {
+//   SUCKC_D();
+//   d->ctx.beginScope(ScopeType::StatementScope);
+//   auto ret = visitChildren(ctx);
+//   d->ctx.endScope();
+//   return ret;
+// }
 
-std::any
-SourceGenerator::visitDeclaration(SuckCParser::DeclarationContext *ctx) {
-  SUCKC_D();
-  auto scope = d->ctx.getCurrentScope();
-  if (ctx->initDeclaratorList()) {
-    auto declList = ctx->initDeclaratorList();
-    for (auto decl : declList->initDeclarator()) {
-      auto var = std::make_shared<suckc::ast::Variable>();
-      auto name = d->getNodeStartTokenText(decl);
-      var->setName(name);
-      (*scope)->addNode(name, var);
-    }
-  } else {
-    auto lastSpecifier = ctx->declarationSpecifiers()->children.back();
-    auto var = std::make_shared<suckc::ast::Variable>();
-    auto name = d->getNodeStartTokenText(lastSpecifier);
-    (*scope)->addNode(name, var);
-  }
+// std::any
+// SourceGenerator::visitDeclaration(SuckCParser::DeclarationContext *ctx) {
+//   SUCKC_D();
+//   auto scope = d->ctx.getCurrentScope();
+//   if (ctx->initDeclaratorList()) {
+//     auto declList = ctx->initDeclaratorList();
+//     for (auto decl : declList->initDeclarator()) {
+//       auto var = std::make_shared<suckc::ast::Variable>();
+//       auto name = d->getNodeStartTokenText(decl);
+//       var->setName(name);
+//       (*scope)->addNode(name, var);
+//     }
+//   } else {
+//     auto lastSpecifier = ctx->declarationSpecifiers()->children.back();
+//     auto var = std::make_shared<suckc::ast::Variable>();
+//     auto name = d->getNodeStartTokenText(lastSpecifier);
+//     (*scope)->addNode(name, var);
+//   }
 
-  return visitChildren(ctx);
-}
+//   return visitChildren(ctx);
+// }
 
 } // namespace suckc
