@@ -274,7 +274,7 @@ Question: '?';
 
 Colon: ':';
 
-Doublecolon: '::';
+DoubleColon: '::';
 
 Semi: ';';
 

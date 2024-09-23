@@ -37,7 +37,7 @@ options {
 
 /*Basic concepts*/
 
-translationUnit: declarationseq? EOF;
+translationUnit: declarationSeq? EOF;
 
 /*Expressions*/
 
@@ -62,8 +62,8 @@ unqualifiedId:
 
 qualifiedId: nestedNameSpecifier Template? unqualifiedId;
 
-nestedNameSpecifier: (theTypeName | namespaceName | decltypeSpecifier)? Doublecolon
-    | nestedNameSpecifier ( Identifier | Template? simpleTemplateId) Doublecolon
+nestedNameSpecifier: (theTypeName | namespaceName | decltypeSpecifier)? DoubleColon
+    | nestedNameSpecifier ( Identifier | Template? simpleTemplateId) DoubleColon
 ;
 
 lambdaExpression: lambdaIntroducer lambdaDeclarator? compoundStatement;
@@ -109,8 +109,8 @@ typeIdOfTheTypeId: Typeid_;
 expressionList: initializerList;
 
 pseudoDestructorName:
-    nestedNameSpecifier? (theTypeName Doublecolon)? Tilde theTypeName
-    | nestedNameSpecifier Template simpleTemplateId Doublecolon Tilde theTypeName
+    nestedNameSpecifier? (theTypeName DoubleColon)? Tilde theTypeName
+    | nestedNameSpecifier Template simpleTemplateId DoubleColon Tilde theTypeName
     | Tilde decltypeSpecifier
 ;
 
@@ -127,7 +127,7 @@ unaryExpression:
 unaryOperator: Or | Star | And | Plus | Tilde | Minus | Not;
 
 newExpression_:
-    Doublecolon? New newPlacement? (newTypeId | LeftParen theTypeId RightParen) newInitializer_?
+    DoubleColon? New newPlacement? (newTypeId | LeftParen theTypeId RightParen) newInitializer_?
 ;
 
 newPlacement: LeftParen expressionList RightParen;
@@ -143,7 +143,7 @@ noPointerNewDeclarator:
 
 newInitializer_: LeftParen expressionList? RightParen | bracedInitList;
 
-deleteExpression: Doublecolon? Delete (LeftBracket RightBracket)? castExpression;
+deleteExpression: DoubleColon? Delete (LeftBracket RightBracket)? castExpression;
 
 noExceptExpression: Noexcept LeftParen expression RightParen;
 
@@ -259,7 +259,7 @@ declarationStatement: blockDeclaration;
 
 /*Declarations*/
 
-declarationseq: declaration+;
+declarationSeq: declaration+;
 
 declaration:
     blockDeclaration
@@ -391,35 +391,35 @@ namespaceName: originalNamespaceName | namespaceAlias;
 originalNamespaceName: Identifier;
 
 namespaceDefinition:
-    Inline? Namespace (Identifier | originalNamespaceName)? LeftBrace namespaceBody = declarationseq? RightBrace
+    Inline? Namespace (Identifier | originalNamespaceName)? LeftBrace namespaceBody = declarationSeq? RightBrace
 ;
 
 namespaceAlias: Identifier;
 
-namespaceAliasDefinition: Namespace Identifier Assign qualifiednamespacespecifier Semi;
+namespaceAliasDefinition: Namespace Identifier Assign qualifiednamespaceSpecifier Semi;
 
-qualifiednamespacespecifier: nestedNameSpecifier? namespaceName;
+qualifiednamespaceSpecifier: nestedNameSpecifier? namespaceName;
 
-usingDeclaration: Using (Typename_? nestedNameSpecifier | Doublecolon) unqualifiedId Semi;
+usingDeclaration: Using (Typename_? nestedNameSpecifier | DoubleColon) unqualifiedId Semi;
 
 usingDirective: attributeSpecifierSeq? Using Namespace nestedNameSpecifier? namespaceName Semi;
 
 asmDefinition: Asm LeftParen StringLiteral RightParen Semi;
 
-linkageSpecification: Extern StringLiteral (LeftBrace declarationseq? RightBrace | declaration);
+linkageSpecification: Extern StringLiteral (LeftBrace declarationSeq? RightBrace | declaration);
 
 attributeSpecifierSeq: attributeSpecifier+;
 
 attributeSpecifier:
     LeftBracket LeftBracket attributeList? RightBracket RightBracket
-    | alignmentspecifier
+    | alignmentSpecifier
 ;
 
-alignmentspecifier: Alignas LeftParen (theTypeId | constantExpression) Ellipsis? RightParen;
+alignmentSpecifier: Alignas LeftParen (theTypeId | constantExpression) Ellipsis? RightParen;
 
 attributeList: attribute (Comma attribute)* Ellipsis?;
 
-attribute: (attributeNamespace Doublecolon)? Identifier attributeArgumentClause?;
+attribute: (attributeNamespace DoubleColon)? Identifier attributeArgumentClause?;
 
 attributeNamespace: Identifier;
 
@@ -452,16 +452,16 @@ noPointerDeclarator:
 ;
 
 parametersAndQualifiers:
-    LeftParen parameterDeclarationClause? RightParen cvqualifierseq? refqualifier? exceptionSpecification? attributeSpecifierSeq?
+    LeftParen parameterDeclarationClause? RightParen cvQualifierSeq? refqualifier? exceptionSpecification? attributeSpecifierSeq?
 ;
 
 trailingReturnType: Arrow trailingTypeSpecifierSeq abstractDeclarator?;
 
 pointerOperator: (And | AndAnd) attributeSpecifierSeq?
-    | nestedNameSpecifier? Star attributeSpecifierSeq? cvqualifierseq?
+    | nestedNameSpecifier? Star attributeSpecifierSeq? cvQualifierSeq?
 ;
 
-cvqualifierseq: cvQualifier+;
+cvQualifierSeq: cvQualifier+;
 
 cvQualifier: Const | Volatile;
 
@@ -574,7 +574,7 @@ virtualSpecifierSeq: virtualSpecifier+;
 virtualSpecifier: Override | Final;
 
 /*
- purespecifier: Assign '0'//Conflicts with the lexer ;
+ pureSpecifier: Assign '0'//Conflicts with the lexer ;
  */
 
 pureSpecifier: Assign IntegerLiteral;
