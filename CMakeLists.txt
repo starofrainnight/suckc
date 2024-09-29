@@ -6,7 +6,10 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/options.cmake")
 
+find_package(wxWidgets REQUIRED core base)
 find_package(Antlr4Ex)
+
+include(${wxWidgets_USE_FILE})
 
 # generate lexer
 antlr4_generate(
@@ -45,4 +48,4 @@ add_executable(
     ${ANTLR4_SRC_FILES_suckc_parser}
 )
 add_dependencies(${PROJECT_NAME} antlr4_shared)
-target_link_libraries(${PROJECT_NAME} PRIVATE antlr4_shared)
+target_link_libraries(${PROJECT_NAME} PRIVATE antlr4_shared ${wxWidgets_LIBRARIES})
