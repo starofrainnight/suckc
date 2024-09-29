@@ -31,6 +31,8 @@ public:
   // std::any visitBlockItem(SuckCParser::BlockItemContext *ctx) override;
 
   // std::any visitDeclaration(SuckCParser::DeclarationContext *ctx) override;
+  std::any
+  visitSimpleDeclaration(SuckCParser::SimpleDeclarationContext *ctx) override;
 };
 
 } // namespace suckc

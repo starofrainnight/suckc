@@ -199,6 +199,11 @@ std::any SourceGenerator::visitCompoundStatement(
   return ret;
 }
 
+std::any SourceGenerator::visitSimpleDeclaration(
+    SuckCParser::SimpleDeclarationContext *ctx) {
+  return visitChildren(ctx);
+}
+
 // std::any SourceGenerator::visitBlockItem(SuckCParser::BlockItemContext *ctx) {
 //   SUCKC_D();
 //   d->ctx.beginScope(ScopeType::StatementScope);
