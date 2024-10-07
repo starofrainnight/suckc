@@ -143,8 +143,8 @@ SourceGeneratorPrivate::getNodeSource(antlr4::tree::ParseTree *node) {
   return "";
 }
 
-SourceGenerator::SourceGenerator(SuckCParser *parser)
-    : dPtr_(new SourceGeneratorPrivate(this)) {
+SourceGenerator::SourceGenerator(SuckCParser *parser, bool isEnabledDebug)
+    : dPtr_(new SourceGeneratorPrivate(this)), isEnabledDebug_(isEnabledDebug) {
   SUCKC_D();
   d->parser = parser;
 }
@@ -155,10 +155,10 @@ std::any SourceGenerator::visitChildren(antlr4::tree::ParseTree *node) {
 
   ++d->indent;
 
-#ifdef SUCKC_TRACE_NODE_TREE
-  std::cout << d->getIndentText() << d->getNodeRuleName(node) << ": "
-            << d->getNodeStartTokenText(node) << "\n";
-#endif
+  if (isEnabledDebug_) {
+    std::cout << d->getIndentText() << d->getNodeRuleName(node) << ": "
+              << d->getNodeStartTokenText(node) << "\n";
+  }
 
   auto ret = SuckCParserBaseVisitor::visitChildren(node);
 

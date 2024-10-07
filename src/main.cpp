@@ -78,7 +78,7 @@ int main(int argc, char *argv[]) {
   // Entry point is translationUnit
   SuckCParser::TranslationUnitContext *tree = parser.translationUnit();
 
-  suckc::SourceGenerator visitor(&parser);
+  suckc::SourceGenerator visitor(&parser, cmdLineParser.Found("debug"));
 
   visitor.visit(tree);
 
