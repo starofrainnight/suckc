@@ -6,7 +6,7 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/options.cmake")
 
-find_package(wxWidgets REQUIRED base)
+find_package(wxWidgets REQUIRED base core)
 find_package(Antlr4Ex)
 
 include(${wxWidgets_USE_FILE})
