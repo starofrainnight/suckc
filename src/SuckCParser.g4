@@ -578,7 +578,7 @@ virtualSpecifier: Override | Final;
  pureSpecifier: Assign '0'//Conflicts with the lexer ;
  */
 
-pureSpecifier: Assign IntegerLiteral;
+pureSpecifier: Assign integerLiteral;
 
 /*Derived classes*/
 
@@ -726,12 +726,23 @@ theOperator:
     | LeftBracket RightBracket
 ;
 
+decimalLiteral     : DecimalLiteral Integersuffix?;
+octalLiteral       : OctalLiteral Integersuffix?;
+hexadecimalLiteral : HexadecimalLiteral Integersuffix?;
+binaryLiteral      : BinaryLiteral Integersuffix?;
+integerLiteral     : decimalLiteral | octalLiteral | hexadecimalLiteral | binaryLiteral;
+characterLiteral   : CharacterLiteral;
+stringLiteral      : StringLiteral;
+floatingLiteral    : FloatingLiteral;
+booleanLiteral     : BooleanLiteral;
+pointerLiteral     : PointerLiteral;
+
 literal:
-    IntegerLiteral
-    | CharacterLiteral
-    | FloatingLiteral
-    | StringLiteral
-    | BooleanLiteral
-    | PointerLiteral
+    integerLiteral
+    | characterLiteral
+    | floatingLiteral
+    | stringLiteral
+    | booleanLiteral
+    | pointerLiteral
     | UserDefinedLiteral
 ;

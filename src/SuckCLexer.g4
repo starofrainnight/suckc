@@ -4,13 +4,6 @@
 
 lexer grammar SuckCLexer;
 
-IntegerLiteral:
-    DecimalLiteral Integersuffix?
-    | OctalLiteral Integersuffix?
-    | HexadecimalLiteral Integersuffix?
-    | BinaryLiteral Integersuffix?
-;
-
 CharacterLiteral: ('u' | 'U' | 'L')? '\'' Cchar+ '\'';
 
 FloatingLiteral:
