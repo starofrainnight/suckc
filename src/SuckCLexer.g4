@@ -7,11 +7,11 @@ lexer grammar SuckCLexer;
 CharacterLiteral: ('u' | 'U' | 'L')? '\'' Cchar+ '\'';
 
 FloatingLiteral:
-    Fractionalconstant Exponentpart? Floatingsuffix?
-    | Digitsequence Exponentpart Floatingsuffix?
+    FractionalConstant ExponentPart? FloatingSuffix?
+    | DigitSequence ExponentPart FloatingSuffix?
 ;
 
-StringLiteral: Encodingprefix? (Rawstring | '"' Schar* '"');
+StringLiteral: EncodingPrefix? (RawString | '"' Schar* '"');
 
 BooleanLiteral: False_ | True_;
 
@@ -349,21 +349,21 @@ fragment Octalescapesequence:
 
 fragment Hexadecimalescapesequence: '\\x' HEXADECIMALDIGIT+;
 
-fragment Fractionalconstant: Digitsequence? '.' Digitsequence | Digitsequence '.';
+fragment FractionalConstant: DigitSequence? '.' DigitSequence | DigitSequence '.';
 
-fragment Exponentpart: 'e' SIGN? Digitsequence | 'E' SIGN? Digitsequence;
+fragment ExponentPart: 'e' SIGN? DigitSequence | 'E' SIGN? DigitSequence;
 
 fragment SIGN: [+-];
 
-fragment Digitsequence: DIGIT ('\''? DIGIT)*;
+fragment DigitSequence: DIGIT ('\''? DIGIT)*;
 
-fragment Floatingsuffix: [flFL];
+fragment FloatingSuffix: [flFL];
 
-fragment Encodingprefix: 'u8' | 'u' | 'U' | 'L';
+fragment EncodingPrefix: 'u8' | 'u' | 'U' | 'L';
 
 fragment Schar: ~ ["\\\r\n] | Escapesequence | Universalcharactername;
 
-fragment Rawstring: 'R"' ( '\\' ["()] | ~[\r\n (])*? '(' ~[)]*? ')' ( '\\' ["()] | ~[\r\n "])*? '"';
+fragment RawString: 'R"' ( '\\' ["()] | ~[\r\n (])*? '(' ~[)]*? ')' ( '\\' ["()] | ~[\r\n "])*? '"';
 
 UserDefinedIntegerLiteral:
     DecimalLiteral Udsuffix
@@ -373,8 +373,8 @@ UserDefinedIntegerLiteral:
 ;
 
 UserDefinedFloatingLiteral:
-    Fractionalconstant Exponentpart? Udsuffix
-    | Digitsequence Exponentpart Udsuffix
+    FractionalConstant ExponentPart? Udsuffix
+    | DigitSequence ExponentPart Udsuffix
 ;
 
 UserDefinedStringLiteral: StringLiteral Udsuffix;
