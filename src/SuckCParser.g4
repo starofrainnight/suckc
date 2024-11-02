@@ -177,8 +177,7 @@ logicalOrExpression: logicalAndExpression (OrOr logicalAndExpression)*;
 
 conditionalExpression: logicalOrExpression (Question expression Colon assignmentExpression)?;
 assignmentExpression:
-    literal
-    | conditionalExpression
+    conditionalExpression
     | logicalOrExpression assignmentOperator initializerClause
     | throwExpression
 ;
