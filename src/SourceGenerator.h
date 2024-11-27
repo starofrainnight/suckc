@@ -34,7 +34,7 @@ public:
   std::any
   visitSimpleDeclaration(SuckCParser::SimpleDeclarationContext *ctx) override;
 
-  bool isEnabledDebug_;
+  std::any visitLiteral(SuckCParser::LiteralContext *ctx) override;
 };
 
 } // namespace suckc

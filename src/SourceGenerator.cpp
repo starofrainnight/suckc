@@ -1,5 +1,6 @@
 #include "SourceGenerator.h"
 #include "SourceContext.h"
+#include "ast/Literal.h"
 #include <string>
 
 namespace suckc {
@@ -12,6 +13,13 @@ public:
 
   inline std::string getIndentText() const {
     return std::string(indent * 2, ' ');
+  }
+
+  void traceNode(antlr4::tree::ParseTree *node) {
+    if (isEnabledDebug) {
+      std::cout << getIndentText() << getNodeRuleName(node) << ": "
+                << getNodeStartTokenText(node) << "\n";
+    }
   }
 
   std::vector<std::string> collectTokenText(antlr4::tree::ParseTree *node);
@@ -37,6 +45,7 @@ public:
 
   int indent = -1;
   SuckCParser *parser;
+  bool isEnabledDebug;
 };
 
 std::vector<std::string>
@@ -144,9 +153,10 @@ SourceGeneratorPrivate::getNodeSource(antlr4::tree::ParseTree *node) {
 }
 
 SourceGenerator::SourceGenerator(SuckCParser *parser, bool isEnabledDebug)
-    : dPtr_(new SourceGeneratorPrivate(this)), isEnabledDebug_(isEnabledDebug) {
+    : dPtr_(new SourceGeneratorPrivate(this)) {
   SUCKC_D();
   d->parser = parser;
+  d->isEnabledDebug = isEnabledDebug;
 }
 
 SourceGenerator::~SourceGenerator() {}
@@ -155,10 +165,7 @@ std::any SourceGenerator::visitChildren(antlr4::tree::ParseTree *node) {
 
   ++d->indent;
 
-  if (isEnabledDebug_) {
-    std::cout << d->getIndentText() << d->getNodeRuleName(node) << ": "
-              << d->getNodeStartTokenText(node) << "\n";
-  }
+  d->traceNode(node);
 
   auto ret = SuckCParserBaseVisitor::visitChildren(node);
 
@@ -202,6 +209,21 @@ std::any SourceGenerator::visitCompoundStatement(
 std::any SourceGenerator::visitSimpleDeclaration(
     SuckCParser::SimpleDeclarationContext *ctx) {
   return visitChildren(ctx);
+}
+
+std::any SourceGenerator::visitLiteral(SuckCParser::LiteralContext *ctx) {
+  SUCKC_D();
+
+  auto literal = std::make_shared<suckc::ast::Literal>();
+  literal->setRuleContext(ctx);
+
+  ++d->indent;
+
+  d->traceNode(ctx);
+
+  --d->indent;
+
+  return std::any(literal);
 }
 
 // std::any SourceGenerator::visitBlockItem(SuckCParser::BlockItemContext *ctx) {
