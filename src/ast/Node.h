@@ -33,6 +33,8 @@ public:
 
   std::list<Node *> *getChildren() { return &children_; };
 
+  virtual std::string toSource();
+
   std::string name_;
   Type type_;
   antlr4::RuleContext *ruleCtx_;

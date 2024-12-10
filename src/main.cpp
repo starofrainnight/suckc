@@ -12,6 +12,7 @@
 #include "SourceGenerator.h"
 #include "SuckCLexer.h"
 #include "SuckCParser.h"
+#include "World.h"
 #include <antlr4-runtime.h>
 #include <fstream>
 #include <iostream>
@@ -75,6 +76,8 @@ int main(int argc, char *argv[]) {
   SuckCLexer lexer(&input);
   antlr4::CommonTokenStream tokens(&lexer);
   SuckCParser parser(&tokens);
+  suckc::World::getInstance()->registerParser(&parser);
+
   // Entry point is translationUnit
   SuckCParser::TranslationUnitContext *tree = parser.translationUnit();
 

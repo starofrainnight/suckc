@@ -1,4 +1,5 @@
 #include "SourceGenerator.h"
+#include "ParserTreeHelper.h"
 #include "SourceContext.h"
 #include "ast/Literal.h"
 #include <string>
@@ -17,140 +18,16 @@ public:
 
   void traceNode(antlr4::tree::ParseTree *node) {
     if (isEnabledDebug) {
-      std::cout << getIndentText() << getNodeRuleName(node) << ": "
-                << getNodeStartTokenText(node) << "\n";
+      std::cout << getIndentText() << ParserTreeHelper::getNodeRuleName(node)
+                << ": " << ParserTreeHelper::getNodeStartTokenText(node)
+                << "\n";
     }
   }
-
-  std::vector<std::string> collectTokenText(antlr4::tree::ParseTree *node);
-  std::vector<std::string> collectTokenText(antlr4::tree::TerminalNode *node);
-
-  std::string getNodeRuleName(antlr4::tree::ParseTree *node);
-  std::string getNodeStartTokenText(antlr4::tree::ParseTree *node);
-
-  /**
-   * @brief Get the token text of a parse tree node
-   * 
-   * This function collects and concatenates the text content of all tokens 
-   * under the given parse tree node. It is useful when generating source 
-   * code, especially when considering the original text content of nodes.
-   * 
-   * @param node A pointer to the parse tree node. This is the starting node
-   * from which we collect token text.
-   * @return std::string Returns a string containing the concatenated text
-   * content of all tokens under the node, separated by spaces.
-   */
-  std::string getNodeTokensText(antlr4::tree::ParseTree *node);
-  std::string getNodeSource(antlr4::tree::ParseTree *node);
 
   int indent = -1;
   SuckCParser *parser;
   bool isEnabledDebug;
 };
-
-std::vector<std::string>
-SourceGeneratorPrivate::collectTokenText(antlr4::tree::TerminalNode *node) {
-  // This function collects the text of a terminal node.
-  return {node->getText()};
-}
-
-std::vector<std::string>
-SourceGeneratorPrivate::collectTokenText(antlr4::tree::ParseTree *node) {
-  // This function collects the text of all tokens under a given non-terminal node.
-  std::vector<std::string> tokens;
-
-  for (auto child : node->children) {
-    if (auto terminalNode = dynamic_cast<antlr4::tree::TerminalNode *>(child)) {
-      auto childTokens = collectTokenText(terminalNode);
-
-      tokens.insert(tokens.end(), childTokens.begin(), childTokens.end());
-    } else if (auto ruleNode = dynamic_cast<antlr4::RuleContext *>(child)) {
-      auto childTokens = collectTokenText(ruleNode);
-      tokens.insert(tokens.end(), childTokens.begin(), childTokens.end());
-    }
-  }
-
-  return tokens;
-}
-
-std::string
-SourceGeneratorPrivate::getNodeRuleName(antlr4::tree::ParseTree *node) {
-  antlr4::ParserRuleContext *context =
-      dynamic_cast<antlr4::ParserRuleContext *>(node);
-  if (context != nullptr) {
-    // Get the rule index of this node
-    int ruleIndex = context->getRuleIndex();
-
-    // Get the parser from which you can retrieve rule names
-    if (parser != nullptr) {
-      // Retrieve the rule name using the rule index
-      std::vector<std::string> ruleNames = parser->getRuleNames();
-      std::string ruleName = ruleNames[ruleIndex];
-
-      // Now you have the rule name, you can do something with it
-      return ruleName;
-    }
-  }
-
-  return "";
-}
-std::string
-SourceGeneratorPrivate::getNodeStartTokenText(antlr4::tree::ParseTree *node) {
-  if (node != nullptr) {
-    antlr4::ParserRuleContext *ctx =
-        dynamic_cast<antlr4::ParserRuleContext *>(node);
-    if (ctx != nullptr) {
-      // Get the start token of the context
-      auto startToken = ctx->start;
-
-      // Get the text associated with the start token
-      auto nodeText = startToken->getText();
-
-      return nodeText;
-    }
-  }
-
-  return "";
-}
-
-std::string
-SourceGeneratorPrivate::getNodeTokensText(antlr4::tree::ParseTree *node) {
-  auto texts = collectTokenText(node);
-
-  std::string text;
-  for (auto i = 0; i < texts.size(); ++i) {
-    text.append(texts[i]);
-    text.append(" ");
-  }
-
-  return text;
-}
-
-std::string
-SourceGeneratorPrivate::getNodeSource(antlr4::tree::ParseTree *node) {
-
-  // Traverse the tree to find the node of interest
-  // For simplicity, we will just use the root node in this example
-  if (node != nullptr) {
-    antlr4::ParserRuleContext *ctx =
-        dynamic_cast<antlr4::ParserRuleContext *>(node);
-    if (ctx != nullptr) {
-      // Get the start and stop tokens
-      antlr4::Token *startToken = ctx->start;
-      antlr4::Token *stopToken = ctx->stop;
-
-      // Get the TokenStream from the lexer
-      antlr4::TokenStream *tokenStream = parser->getTokenStream();
-
-      // Get the source code block between the start and stop tokens
-      std::string sourceCodeBlock = tokenStream->getText(antlr4::misc::Interval(
-          startToken->getTokenIndex(), stopToken->getTokenIndex()));
-
-      return sourceCodeBlock;
-    }
-  }
-  return "";
-}
 
 SourceGenerator::SourceGenerator(SuckCParser *parser, bool isEnabledDebug)
     : dPtr_(new SourceGeneratorPrivate(this)) {
@@ -180,7 +57,7 @@ std::any SourceGenerator::visitFunctionDefinition(
 
   auto scope = d->ctx.getCurrentScope();
   auto func = std::make_shared<suckc::ast::Function>();
-  auto name = d->getNodeStartTokenText(ctx->declarator());
+  auto name = ParserTreeHelper::getNodeStartTokenText(ctx->declarator());
   func->setName(name);
   (*scope)->addNode(name, func);
 
