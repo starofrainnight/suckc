@@ -6,11 +6,11 @@ class SuckCParser;
 namespace suckc {
 
 class World {
-public:
-  static World *getInstance();
-
 protected:
   World();
+
+public:
+  static World *getInstance();
 
 public:
   void registerParser(SuckCParser *parser);
