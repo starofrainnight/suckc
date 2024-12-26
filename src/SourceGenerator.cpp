@@ -1,6 +1,8 @@
 #include "SourceGenerator.h"
 #include "ParserTreeHelper.h"
 #include "SourceContext.h"
+#include "ast/Expression.h"
+#include "ast/IdExpression.h"
 #include "ast/Literal.h"
 #include <string>
 
@@ -18,9 +20,20 @@ public:
 
   void traceNode(antlr4::tree::ParseTree *node) {
     if (isEnabledDebug) {
+      ++indent;
       std::cout << getIndentText() << ParserTreeHelper::getNodeRuleName(node)
                 << ": " << ParserTreeHelper::getNodeStartTokenText(node)
                 << "\n";
+      --indent;
+    }
+  }
+
+  void traceNodeSource(antlr4::tree::ParseTree *node) {
+    if (isEnabledDebug) {
+      ++indent;
+      std::cout << getIndentText() << ParserTreeHelper::getNodeRuleName(node)
+                << ": " << ParserTreeHelper::getNodeSource(node) << "\n";
+      --indent;
     }
   }
 
@@ -85,6 +98,12 @@ std::any SourceGenerator::visitCompoundStatement(
 
 std::any SourceGenerator::visitSimpleDeclaration(
     SuckCParser::SimpleDeclarationContext *ctx) {
+  SUCKC_D();
+
+  auto variable = std::make_shared<suckc::ast::Variable>();
+  variable->setRuleContext(ctx);
+  // variable->setValueType();
+
   return visitChildren(ctx);
 }
 
@@ -94,13 +113,31 @@ std::any SourceGenerator::visitLiteral(SuckCParser::LiteralContext *ctx) {
   auto literal = std::make_shared<suckc::ast::Literal>();
   literal->setRuleContext(ctx);
 
-  ++d->indent;
+  d->traceNode(ctx);
+
+  return std::any(literal);
+}
+
+std::any SourceGenerator::visitPrimaryExpression(
+    SuckCParser::PrimaryExpressionContext *ctx) {
+  SUCKC_D();
+  auto expr = std::make_shared<suckc::ast::Expression>();
+  expr->setRuleContext(ctx);
 
   d->traceNode(ctx);
 
-  --d->indent;
+  return std::any(expr);
+}
 
-  return std::any(literal);
+std::any SourceGenerator::visitAssignmentExpression(
+    SuckCParser::AssignmentExpressionContext *ctx) {
+  SUCKC_D();
+  auto expr = std::make_shared<suckc::ast::Expression>();
+  expr->setRuleContext(ctx);
+
+  d->traceNodeSource(ctx);
+
+  return std::any(expr);
 }
 
 // std::any SourceGenerator::visitBlockItem(SuckCParser::BlockItemContext *ctx) {

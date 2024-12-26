@@ -35,6 +35,11 @@ public:
   visitSimpleDeclaration(SuckCParser::SimpleDeclarationContext *ctx) override;
 
   std::any visitLiteral(SuckCParser::LiteralContext *ctx) override;
+  std::any
+  visitPrimaryExpression(SuckCParser::PrimaryExpressionContext *ctx) override;
+
+  std::any visitAssignmentExpression(
+      SuckCParser::AssignmentExpressionContext *ctx) override;
 };
 
 } // namespace suckc
