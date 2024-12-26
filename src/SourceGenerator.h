@@ -38,8 +38,19 @@ public:
   std::any
   visitPrimaryExpression(SuckCParser::PrimaryExpressionContext *ctx) override;
 
+  // simpleDeclaration: declSpecifierSeq declSpecifierSeq initializer
+  // auto v = 1;
+  std::any
+  visitDeclSpecifierSeq(SuckCParser::DeclSpecifierSeqContext *ctx) override;
+
+  std::any visitDeclSpecifier(SuckCParser::DeclSpecifierContext *ctx) override;
+
   std::any visitAssignmentExpression(
       SuckCParser::AssignmentExpressionContext *ctx) override;
+
+  std::any
+  visitInitDeclarator(SuckCParser::InitDeclaratorContext *ctx) override;
+  std::any visitInitializer(SuckCParser::InitializerContext *ctx) override;
 };
 
 } // namespace suckc

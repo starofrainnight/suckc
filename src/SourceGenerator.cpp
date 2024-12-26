@@ -20,15 +20,19 @@ public:
 
   void traceNode(antlr4::tree::ParseTree *node) {
     if (isEnabledDebug) {
-      ++indent;
       std::cout << getIndentText() << ParserTreeHelper::getNodeRuleName(node)
                 << ": " << ParserTreeHelper::getNodeStartTokenText(node)
                 << "\n";
-      --indent;
     }
   }
 
-  void traceNodeSource(antlr4::tree::ParseTree *node) {
+  void traceNodeUnderNextIndent(antlr4::tree::ParseTree *node) {
+    ++indent;
+    traceNode(node);
+    --indent;
+  }
+
+  void traceNodeSourceUnderNextIndent(antlr4::tree::ParseTree *node) {
     if (isEnabledDebug) {
       ++indent;
       std::cout << getIndentText() << ParserTreeHelper::getNodeRuleName(node)
@@ -113,7 +117,7 @@ std::any SourceGenerator::visitLiteral(SuckCParser::LiteralContext *ctx) {
   auto literal = std::make_shared<suckc::ast::Literal>();
   literal->setRuleContext(ctx);
 
-  d->traceNode(ctx);
+  d->traceNodeUnderNextIndent(ctx);
 
   return std::any(literal);
 }
@@ -124,7 +128,7 @@ std::any SourceGenerator::visitPrimaryExpression(
   auto expr = std::make_shared<suckc::ast::Expression>();
   expr->setRuleContext(ctx);
 
-  d->traceNode(ctx);
+  d->traceNodeUnderNextIndent(ctx);
 
   return std::any(expr);
 }
@@ -135,7 +139,46 @@ std::any SourceGenerator::visitAssignmentExpression(
   auto expr = std::make_shared<suckc::ast::Expression>();
   expr->setRuleContext(ctx);
 
-  d->traceNodeSource(ctx);
+  d->traceNodeSourceUnderNextIndent(ctx);
+
+  return std::any(expr);
+}
+
+std::any SourceGenerator::visitDeclSpecifierSeq(
+    SuckCParser::DeclSpecifierSeqContext *ctx) {
+
+  return visitChildren(ctx);
+}
+
+std::any
+SourceGenerator::visitDeclSpecifier(SuckCParser::DeclSpecifierContext *ctx) {
+  SUCKC_D();
+  auto expr = std::make_shared<suckc::ast::Expression>();
+  expr->setRuleContext(ctx);
+
+  d->traceNodeUnderNextIndent(ctx);
+
+  return std::any(expr);
+}
+
+std::any
+SourceGenerator::visitInitDeclarator(SuckCParser::InitDeclaratorContext *ctx) {
+  SUCKC_D();
+  auto expr = std::make_shared<suckc::ast::Expression>();
+  expr->setRuleContext(ctx);
+
+  d->traceNodeSourceUnderNextIndent(ctx);
+
+  return std::any(expr);
+}
+
+std::any
+SourceGenerator::visitInitializer(SuckCParser::InitializerContext *ctx) {
+  SUCKC_D();
+  auto expr = std::make_shared<suckc::ast::Expression>();
+  expr->setRuleContext(ctx);
+
+  d->traceNodeSourceUnderNextIndent(ctx);
 
   return std::any(expr);
 }
