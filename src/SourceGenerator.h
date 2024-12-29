@@ -14,6 +14,11 @@ public:
   virtual ~SourceGenerator();
 
   std::any visitChildren(antlr4::tree::ParseTree *node) override;
+
+  // The entry node
+  std::any
+  visitTranslationUnit(SuckCParser::TranslationUnitContext *ctx) override;
+
   std::any
   visitFunctionDefinition(SuckCParser::FunctionDefinitionContext *ctx) override;
   // std::any

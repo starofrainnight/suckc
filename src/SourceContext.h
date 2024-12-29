@@ -19,6 +19,8 @@ public:
   void beginScope(ScopeType scopeType);
   void endScope();
 
+  void print();
+
   std::shared_ptr<ast::Variable> findVariable(const std::string &name) {
     return std::static_pointer_cast<ast::Variable>(
         findNode(ast::Variable::kNodeType, name));

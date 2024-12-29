@@ -21,6 +21,18 @@ Scope::Scope(ScopeType type) : dPtr_(new ScopePrivate(this)) {
 
 Scope::~Scope() {}
 
+void Scope::print() const {
+  SUCKC_D();
+
+  std::cout << "SCOPE_BEGIN(" << d->type << ")" << std::endl;
+  for (auto &nodeMap : d->nodes) {
+    for (auto &node : nodeMap) {
+      std::cout << node.first << ": " << node.second->toSource() << std::endl;
+    }
+  }
+  std::cout << "SCOPE_END" << std::endl;
+}
+
 ScopeType Scope::getType() const {
   SUCKC_D();
   return d->type;

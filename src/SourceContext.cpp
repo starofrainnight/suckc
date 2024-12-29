@@ -48,6 +48,16 @@ void SourceContext::endScope() {
   d->scopes.pop_back();
 }
 
+void SourceContext::print() {
+  SUCKC_D();
+
+  std::cout << "CONTEXT_BEGIN" << std::endl;
+  for (auto it = d->scopes.begin(); it != d->scopes.end(); ++it) {
+    (*it)->print();
+  }
+  std::cout << "CONTEXT_END" << std::endl;
+}
+
 std::shared_ptr<ast::Node> SourceContext::findNode(const ast::Node::Type &type,
                                                    const std::string &name) {
   SUCKC_D();

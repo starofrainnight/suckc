@@ -68,6 +68,19 @@ std::any SourceGenerator::visitChildren(antlr4::tree::ParseTree *node) {
   return ret;
 }
 
+std::any SourceGenerator::visitTranslationUnit(
+    SuckCParser::TranslationUnitContext *ctx) {
+  SUCKC_D();
+
+  visitChildren(ctx);
+
+  if (d->isEnabledDebug) {
+    std::cout << std::endl << "Final Context:" << std::endl;
+    d->ctx.print();
+  }
+  return std::any();
+}
+
 std::any SourceGenerator::visitFunctionDefinition(
     SuckCParser::FunctionDefinitionContext *ctx) {
   SUCKC_D();

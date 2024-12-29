@@ -23,6 +23,8 @@ public:
   Scope(ScopeType type);
   ~Scope();
 
+  void print() const;
+
   ScopeType getType() const;
 
   std::shared_ptr<ast::Node> findNode(const NodeType type,
