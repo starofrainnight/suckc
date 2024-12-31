@@ -15,9 +15,12 @@ public:
 public:
   void registerParser(SuckCParser *parser);
   SuckCParser *getParser();
+  void setEnabledDebug(bool enabled);
+  bool isEnabledDebug() { return isEnabledDebug_; }
 
 private:
   SuckCParser *parser_;
+  bool isEnabledDebug_;
 };
 
 } // namespace suckc

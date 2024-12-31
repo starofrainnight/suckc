@@ -13,9 +13,10 @@ World *World::getInstance() {
   return sWorld;
 }
 
-World::World() : parser_(nullptr) {}
+World::World() : parser_(nullptr), isEnabledDebug_(false) {}
 
 void World::registerParser(SuckCParser *parser) { parser_ = parser; }
 
 SuckCParser *World::getParser() { return parser_; }
-}
+void World::setEnabledDebug(bool enabled) { isEnabledDebug_ = enabled; }
+} // namespace suckc

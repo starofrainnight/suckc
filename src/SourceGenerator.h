@@ -10,7 +10,7 @@ class SourceGenerator : public SuckCParserBaseVisitor {
   SUCKC_OBJECT_DECL(SourceGenerator);
 
 public:
-  SourceGenerator(SuckCParser *parser, bool isEnabledDebug = false);
+  SourceGenerator(SuckCParser *parser);
   virtual ~SourceGenerator();
 
   std::any visitChildren(antlr4::tree::ParseTree *node) override;

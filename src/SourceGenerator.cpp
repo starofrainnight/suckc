@@ -1,6 +1,7 @@
 #include "SourceGenerator.h"
 #include "ParserTreeHelper.h"
 #include "SourceContext.h"
+#include "World.h"
 #include "ast/Expression.h"
 #include "ast/IdExpression.h"
 #include "ast/Literal.h"
@@ -19,7 +20,7 @@ public:
   }
 
   void traceNode(antlr4::tree::ParseTree *node) {
-    if (isEnabledDebug) {
+    if (World::getInstance()->isEnabledDebug()) {
       std::cout << getIndentText() << ParserTreeHelper::getNodeRuleName(node)
                 << ": " << ParserTreeHelper::getNodeStartTokenText(node)
                 << "\n";
@@ -33,7 +34,7 @@ public:
   }
 
   void traceNodeSourceUnderNextIndent(antlr4::tree::ParseTree *node) {
-    if (isEnabledDebug) {
+    if (World::getInstance()->isEnabledDebug()) {
       ++indent;
       std::cout << getIndentText() << ParserTreeHelper::getNodeRuleName(node)
                 << ": " << ParserTreeHelper::getNodeSource(node) << "\n";
@@ -43,14 +44,12 @@ public:
 
   int indent = -1;
   SuckCParser *parser;
-  bool isEnabledDebug;
 };
 
-SourceGenerator::SourceGenerator(SuckCParser *parser, bool isEnabledDebug)
+SourceGenerator::SourceGenerator(SuckCParser *parser)
     : dPtr_(new SourceGeneratorPrivate(this)) {
   SUCKC_D();
   d->parser = parser;
-  d->isEnabledDebug = isEnabledDebug;
 }
 
 SourceGenerator::~SourceGenerator() {}
@@ -74,7 +73,7 @@ std::any SourceGenerator::visitTranslationUnit(
 
   visitChildren(ctx);
 
-  if (d->isEnabledDebug) {
+  if (World::getInstance()->isEnabledDebug()) {
     std::cout << std::endl << "Final Context:" << std::endl;
     d->ctx.print();
   }

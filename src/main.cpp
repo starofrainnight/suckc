@@ -76,12 +76,15 @@ int main(int argc, char *argv[]) {
   SuckCLexer lexer(&input);
   antlr4::CommonTokenStream tokens(&lexer);
   SuckCParser parser(&tokens);
-  suckc::World::getInstance()->registerParser(&parser);
+  auto world = suckc::World::getInstance();
+
+  world->registerParser(&parser);
+  world->setEnabledDebug(cmdLineParser.Found("debug"));
 
   // Entry point is translationUnit
   SuckCParser::TranslationUnitContext *tree = parser.translationUnit();
 
-  suckc::SourceGenerator visitor(&parser, cmdLineParser.Found("debug"));
+  suckc::SourceGenerator visitor(&parser);
 
   visitor.visit(tree);
 
