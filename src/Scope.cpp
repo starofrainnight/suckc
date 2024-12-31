@@ -27,7 +27,9 @@ void Scope::print() const {
   std::cout << "SCOPE_BEGIN(" << d->type << ")" << std::endl;
   for (auto &nodeMap : d->nodes) {
     for (auto &node : nodeMap) {
-      std::cout << node.first << ": " << node.second->toSource() << std::endl;
+      std::cout << "NODE(" << (int)node.second->getType() << "):"
+                << "name(" << node.first
+                << "):source: " << node.second->toSource() << std::endl;
     }
   }
   std::cout << "SCOPE_END" << std::endl;
