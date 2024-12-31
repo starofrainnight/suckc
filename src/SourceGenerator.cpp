@@ -113,6 +113,14 @@ std::any SourceGenerator::visitCompoundStatement(
   return ret;
 }
 
+std::any SourceGenerator::visitStatement(SuckCParser::StatementContext *ctx) {
+  SUCKC_D();
+  d->ctx.beginScope(ScopeType::StatementScope);
+  auto ret = visitChildren(ctx);
+  d->ctx.endScope();
+  return ret;
+}
+
 std::any SourceGenerator::visitSimpleDeclaration(
     SuckCParser::SimpleDeclarationContext *ctx) {
   SUCKC_D();

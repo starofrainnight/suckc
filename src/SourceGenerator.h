@@ -30,6 +30,8 @@ public:
   std::any
   visitCompoundStatement(SuckCParser::CompoundStatementContext *ctx) override;
 
+  std::any visitStatement(SuckCParser::StatementContext *ctx) override;
+
   /**
    * Visit statements that surround by ";"
    */
