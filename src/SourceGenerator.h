@@ -15,6 +15,8 @@ public:
 
   std::any visitChildren(antlr4::tree::ParseTree *node) override;
 
+  std::any aggregateResult(std::any aggregate, std::any nextResult) override;
+
   // The entry node
   std::any
   visitTranslationUnit(SuckCParser::TranslationUnitContext *ctx) override;
@@ -45,6 +47,14 @@ public:
   std::any
   visitPrimaryExpression(SuckCParser::PrimaryExpressionContext *ctx) override;
 
+  std::any visitIdExpression(SuckCParser::IdExpressionContext *ctx) override;
+
+  std::any visitNoPointerDeclarator(
+      SuckCParser::NoPointerDeclaratorContext *ctx) override;
+
+  std::any
+  visitPointerDeclarator(SuckCParser::PointerDeclaratorContext *ctx) override;
+
   // simpleDeclaration: declSpecifierSeq declSpecifierSeq initializer
   // auto v = 1;
   std::any
@@ -58,6 +68,8 @@ public:
   std::any
   visitInitDeclarator(SuckCParser::InitDeclaratorContext *ctx) override;
   std::any visitInitializer(SuckCParser::InitializerContext *ctx) override;
+  std::any visitBraceOrEqualInitializer(
+      SuckCParser::BraceOrEqualInitializerContext *ctx) override;
 };
 
 } // namespace suckc

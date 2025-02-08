@@ -14,9 +14,12 @@ public:
     Variable,
     Function,
     FunctionDeclaration,
+    FunctionVarBody,
     Struct,
     Expression,
     Literal,
+    Specifier,
+    Attribute,
     Count_,
   };
 

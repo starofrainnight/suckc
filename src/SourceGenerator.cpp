@@ -3,9 +3,11 @@
 #include "SourceContext.h"
 #include "World.h"
 #include "ast/Expression.h"
+#include "ast/FunctionVarBody.h"
 #include "ast/IdExpression.h"
 #include "ast/Literal.h"
 #include <string>
+#include <typeinfo>
 
 namespace suckc {
 
@@ -67,6 +69,12 @@ std::any SourceGenerator::visitChildren(antlr4::tree::ParseTree *node) {
   return ret;
 }
 
+std::any SourceGenerator::aggregateResult(std::any aggregate,
+                                          std::any nextResult) {
+  // If the next result has value, then return the next result, otherwise return previous result
+  return nextResult.has_value() ? nextResult : aggregate;
+}
+
 std::any SourceGenerator::visitTranslationUnit(
     SuckCParser::TranslationUnitContext *ctx) {
   SUCKC_D();
@@ -124,11 +132,49 @@ std::any SourceGenerator::visitSimpleDeclaration(
     SuckCParser::SimpleDeclarationContext *ctx) {
   SUCKC_D();
 
-  auto variable = std::make_shared<suckc::ast::Variable>();
-  variable->setRuleContext(ctx);
-  // variable->setValueType();
+  if (ctx->initDeclarator()) {
+    auto variable = std::make_shared<suckc::ast::Variable>();
 
-  return visitChildren(ctx);
+    variable->setRuleContext(ctx);
+
+    // Get specifiers and attributes.
+    auto specifiers = variable->getSpecifiers();
+    {
+      auto seq = ctx->declSpecifierSeq();
+      if (seq) {
+        for (auto specifierContext : seq->declSpecifier()) {
+          auto specifier = std::make_shared<ast::Specifier>();
+          specifier->setRuleContext(specifierContext);
+          specifiers->push_back(specifier);
+        }
+      }
+    }
+
+    auto attributes = variable->getAttributes();
+    {
+      auto seq = ctx->attributeSpecifierSeq();
+      if (seq) {
+        for (auto attributeContext : seq->attributeSpecifier()) {
+          auto attribute = std::make_shared<ast::Attribute>();
+          attribute->setRuleContext(attributeContext);
+          attributes->push_back(attribute);
+        }
+      }
+    }
+
+    auto value = visitChildren(ctx->initDeclarator()->declarator());
+    if (value.type() == typeid(std::shared_ptr<suckc::ast::FunctionVarBody>)) {
+      auto funcVarBody =
+          std::any_cast<std::shared_ptr<suckc::ast::FunctionVarBody>>(value);
+      variable->setName(funcVarBody->getName());
+    }
+
+    return value;
+  } else {
+    auto expr = std::make_shared<suckc::ast::Expression>();
+    expr->setRuleContext(ctx);
+    return std::any(expr);
+  }
 }
 
 std::any SourceGenerator::visitLiteral(SuckCParser::LiteralContext *ctx) {
@@ -153,6 +199,44 @@ std::any SourceGenerator::visitPrimaryExpression(
   return std::any(expr);
 }
 
+std::any
+SourceGenerator::visitIdExpression(SuckCParser::IdExpressionContext *ctx) {
+  SUCKC_D();
+  auto expr = std::make_shared<suckc::ast::IdExpression>();
+  expr->setRuleContext(ctx);
+
+  return std::any(expr);
+}
+
+std::any SourceGenerator::visitNoPointerDeclarator(
+    SuckCParser::NoPointerDeclaratorContext *ctx) {
+  SUCKC_D();
+
+  if (ctx->noPointerDeclarator() && ctx->parametersAndQualifiers()) {
+    auto expr = std::make_shared<suckc::ast::FunctionVarBody>();
+    expr->setRuleContext(ctx);
+
+    // FIXME: We not treat the parameters correctly
+    auto nameValue = visitChildren(ctx->noPointerDeclarator());
+
+    // Track the parameters either
+    visitChildren(ctx->parametersAndQualifiers());
+
+    if (typeid(std::shared_ptr<suckc::ast::IdExpression>) == nameValue.type()) {
+      auto castedNameValue =
+          std::any_cast<std::shared_ptr<suckc::ast::IdExpression>>(nameValue);
+      expr->setName(
+          ParserTreeHelper::getNodeSource(castedNameValue->getRuleContext()));
+    }
+    return std::any(expr);
+  } else if (ctx->declaratorid()) {
+    // FIXME: We must not ignores attributes!
+    return visitChildren(ctx->declaratorid());
+  } else {
+    return visitChildren(ctx);
+  }
+}
+
 std::any SourceGenerator::visitAssignmentExpression(
     SuckCParser::AssignmentExpressionContext *ctx) {
   SUCKC_D();
@@ -167,6 +251,13 @@ std::any SourceGenerator::visitAssignmentExpression(
 std::any SourceGenerator::visitDeclSpecifierSeq(
     SuckCParser::DeclSpecifierSeqContext *ctx) {
 
+  SUCKC_D();
+
+  return visitChildren(ctx);
+}
+
+std::any SourceGenerator::visitPointerDeclarator(
+    SuckCParser::PointerDeclaratorContext *ctx) {
   return visitChildren(ctx);
 }
 
@@ -187,20 +278,21 @@ SourceGenerator::visitInitDeclarator(SuckCParser::InitDeclaratorContext *ctx) {
   auto expr = std::make_shared<suckc::ast::Expression>();
   expr->setRuleContext(ctx);
 
-  d->traceNodeSourceUnderNextIndent(ctx);
+  // d->traceNodeSourceUnderNextIndent(ctx);
+  auto scope = d->ctx.getCurrentScope();
+  // (*currentScope)->
 
-  return std::any(expr);
+  return visitChildren(ctx);
 }
 
 std::any
 SourceGenerator::visitInitializer(SuckCParser::InitializerContext *ctx) {
-  SUCKC_D();
-  auto expr = std::make_shared<suckc::ast::Expression>();
-  expr->setRuleContext(ctx);
+  return visitChildren(ctx);
+}
 
-  d->traceNodeSourceUnderNextIndent(ctx);
-
-  return std::any(expr);
+std::any SourceGenerator::visitBraceOrEqualInitializer(
+    SuckCParser::BraceOrEqualInitializerContext *ctx) {
+  return visitChildren(ctx);
 }
 
 // std::any SourceGenerator::visitBlockItem(SuckCParser::BlockItemContext *ctx) {

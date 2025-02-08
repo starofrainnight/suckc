@@ -519,6 +519,10 @@ functionBody:
 
 initializer: braceOrEqualInitializer | LeftParen expressionList RightParen;
 
+// int anvar "= 1" or "(...)"
+// 
+// 1. int anvar = 1
+// 2. int anvar(1)
 braceOrEqualInitializer: Assign initializerClause | bracedInitList;
 
 initializerClause: assignmentExpression | bracedInitList;
