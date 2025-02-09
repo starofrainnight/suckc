@@ -295,34 +295,4 @@ std::any SourceGenerator::visitBraceOrEqualInitializer(
   return visitChildren(ctx);
 }
 
-// std::any SourceGenerator::visitBlockItem(SuckCParser::BlockItemContext *ctx) {
-//   SUCKC_D();
-//   d->ctx.beginScope(ScopeType::StatementScope);
-//   auto ret = visitChildren(ctx);
-//   d->ctx.endScope();
-//   return ret;
-// }
-
-// std::any
-// SourceGenerator::visitDeclaration(SuckCParser::DeclarationContext *ctx) {
-//   SUCKC_D();
-//   auto scope = d->ctx.getCurrentScope();
-//   if (ctx->initDeclaratorList()) {
-//     auto declList = ctx->initDeclaratorList();
-//     for (auto decl : declList->initDeclarator()) {
-//       auto var = std::make_shared<suckc::ast::Variable>();
-//       auto name = d->getNodeStartTokenText(decl);
-//       var->setName(name);
-//       (*scope)->addNode(name, var);
-//     }
-//   } else {
-//     auto lastSpecifier = ctx->declarationSpecifiers()->children.back();
-//     auto var = std::make_shared<suckc::ast::Variable>();
-//     auto name = d->getNodeStartTokenText(lastSpecifier);
-//     (*scope)->addNode(name, var);
-//   }
-
-//   return visitChildren(ctx);
-// }
-
 } // namespace suckc
