@@ -169,6 +169,10 @@ std::any SourceGenerator::visitSimpleDeclaration(
       variable->setName(funcVarBody->getName());
     }
 
+    // Added variable definition to the current scope
+    auto scope = d->ctx.getCurrentScope();
+    (*scope)->addNode(variable->getName(), variable);
+
     return value;
   } else {
     auto expr = std::make_shared<suckc::ast::Expression>();
@@ -277,10 +281,6 @@ SourceGenerator::visitInitDeclarator(SuckCParser::InitDeclaratorContext *ctx) {
   SUCKC_D();
   auto expr = std::make_shared<suckc::ast::Expression>();
   expr->setRuleContext(ctx);
-
-  // d->traceNodeSourceUnderNextIndent(ctx);
-  auto scope = d->ctx.getCurrentScope();
-  // (*currentScope)->
 
   return visitChildren(ctx);
 }
