@@ -167,6 +167,11 @@ std::any SourceGenerator::visitSimpleDeclaration(
       auto funcVarBody =
           std::any_cast<std::shared_ptr<suckc::ast::FunctionVarBody>>(value);
       variable->setName(funcVarBody->getName());
+    } else {
+      auto expr =
+          std::any_cast<std::shared_ptr<suckc::ast::IdExpression>>(value);
+      variable->setName(
+          ParserTreeHelper::getNodeSource(expr->getRuleContext()));
     }
 
     // Added variable definition to the current scope
