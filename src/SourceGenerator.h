@@ -70,6 +70,15 @@ public:
   std::any visitInitializer(SuckCParser::InitializerContext *ctx) override;
   std::any visitBraceOrEqualInitializer(
       SuckCParser::BraceOrEqualInitializerContext *ctx) override;
+
+  std::any visitFunctionPointerDeclarator(
+      SuckCParser::FunctionPointerDeclaratorContext *ctx) override;
+
+  std::any visitSimpleTypedefDeclarator(
+      SuckCParser::SimpleTypedefDeclaratorContext *ctx) override;
+
+  std::any
+  visitTypedefDeclaration(SuckCParser::TypedefDeclarationContext *ctx) override;
 };
 
 } // namespace suckc

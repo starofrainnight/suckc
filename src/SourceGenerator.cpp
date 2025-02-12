@@ -6,6 +6,8 @@
 #include "ast/FunctionVarBody.h"
 #include "ast/IdExpression.h"
 #include "ast/Literal.h"
+#include "ast/TypeDeclaration.h"
+#include "ast/TypedefAlias.h"
 #include <string>
 #include <typeinfo>
 
@@ -298,6 +300,51 @@ SourceGenerator::visitInitializer(SuckCParser::InitializerContext *ctx) {
 std::any SourceGenerator::visitBraceOrEqualInitializer(
     SuckCParser::BraceOrEqualInitializerContext *ctx) {
   return visitChildren(ctx);
+}
+
+std::any SourceGenerator::visitFunctionPointerDeclarator(
+    SuckCParser::FunctionPointerDeclaratorContext *ctx) {
+  SUCKC_D();
+  auto decl = std::make_shared<suckc::ast::TypeDeclaration>();
+  decl->setRuleContext(ctx);
+  decl->setName(ctx->typedefName()->getText());
+
+  return std::any(decl);
+}
+
+std::any SourceGenerator::visitSimpleTypedefDeclarator(
+    SuckCParser::SimpleTypedefDeclaratorContext *ctx) {
+  SUCKC_D();
+  auto decl = std::make_shared<suckc::ast::TypeDeclaration>();
+  decl->setRuleContext(ctx);
+  decl->setName(ctx->typedefName()->getText());
+
+  return std::any(decl);
+}
+
+std::any SourceGenerator::visitTypedefDeclaration(
+    SuckCParser::TypedefDeclarationContext *ctx) {
+  SUCKC_D();
+  auto typedefAlias = std::make_shared<suckc::ast::TypedefAlias>();
+  auto value = visitChildren(ctx);
+  auto decl =
+      std::any_cast<std::shared_ptr<suckc::ast::TypeDeclaration>>(value);
+
+  typedefAlias->setRuleContext(ctx);
+  typedefAlias->setName(decl->getName());
+  typedefAlias->setTypeDeclaration(decl);
+
+  auto scope = d->ctx.getCurrentScope();
+  auto found =
+      (*scope)->findNode(typedefAlias->getType(), typedefAlias->getName());
+  if ((*scope)->findNode(typedefAlias->getType(), typedefAlias->getName())) {
+    std::cout << "WARN: Duplicate type name: " << typedefAlias->getName()
+              << std::endl;
+  }
+
+  (*scope)->addNode(typedefAlias->getName(), typedefAlias);
+
+  return typedefAlias;
 }
 
 } // namespace suckc

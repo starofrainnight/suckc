@@ -13,6 +13,8 @@ public:
   enum class Type {
     Variable,
     Function,
+    TypeDeclaration,
+    Alias,
     FunctionDeclaration,
     FunctionVarBody,
     Struct,

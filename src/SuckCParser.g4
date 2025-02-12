@@ -281,11 +281,19 @@ blockDeclaration:
     | usingDeclaration
     | usingDirective
     | staticAssertDeclaration
+    | typedefDeclaration
     | aliasDeclaration
     | opaqueEnumDeclaration
 ;
 
 aliasDeclaration: Using Identifier attributeSpecifierSeq? Assign theTypeId Semi;
+
+functionPointerDeclarator:
+    typeSpecifier LeftParen Star typedefName RightParen parametersAndQualifiers
+;
+simpleTypedefDeclarator: typeSpecifier typedefName;
+
+typedefDeclaration: Typedef (functionPointerDeclarator | simpleTypedefDeclarator) Semi;
 
 simpleDeclaration:
     declSpecifierSeq? initDeclarator? Semi
@@ -300,14 +308,7 @@ emptyDeclaration_: Semi;
 
 attributeDeclaration: attributeSpecifierSeq Semi;
 
-declSpecifier:
-    storageClassSpecifier
-    | typeSpecifier
-    | functionSpecifier
-    | Friend
-    | Typedef
-    | Constexpr
-;
+declSpecifier: storageClassSpecifier | typeSpecifier | functionSpecifier | Friend | Constexpr;
 
 declSpecifierSeq: declSpecifier+? attributeSpecifierSeq?;
 
