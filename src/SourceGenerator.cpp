@@ -305,6 +305,9 @@ std::any SourceGenerator::visitBraceOrEqualInitializer(
 std::any SourceGenerator::visitFunctionPointerDeclarator(
     SuckCParser::FunctionPointerDeclaratorContext *ctx) {
   SUCKC_D();
+
+  visitChildren(ctx);
+
   auto decl = std::make_shared<suckc::ast::TypeDeclaration>();
   decl->setRuleContext(ctx);
   decl->setName(ctx->typedefName()->getText());
@@ -315,6 +318,9 @@ std::any SourceGenerator::visitFunctionPointerDeclarator(
 std::any SourceGenerator::visitSimpleTypedefDeclarator(
     SuckCParser::SimpleTypedefDeclaratorContext *ctx) {
   SUCKC_D();
+
+  visitChildren(ctx);
+
   auto decl = std::make_shared<suckc::ast::TypeDeclaration>();
   decl->setRuleContext(ctx);
   decl->setName(ctx->typedefName()->getText());
