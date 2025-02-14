@@ -95,7 +95,7 @@ std::any SourceGenerator::visitFunctionDefinition(
   SUCKC_D();
 
   auto scope = d->ctx.getCurrentScope();
-  auto func = std::make_shared<suckc::ast::Function>();
+  auto func = std::make_shared<ast::Function>();
   auto name = ParserTreeHelper::getNodeStartTokenText(ctx->declarator());
   func->setName(name);
   (*scope)->addNode(name, func);
@@ -135,7 +135,7 @@ std::any SourceGenerator::visitSimpleDeclaration(
   SUCKC_D();
 
   if (ctx->initDeclarator()) {
-    auto variable = std::make_shared<suckc::ast::Variable>();
+    auto variable = std::make_shared<ast::Variable>();
 
     variable->setRuleContext(ctx);
 
@@ -165,13 +165,12 @@ std::any SourceGenerator::visitSimpleDeclaration(
     }
 
     auto value = visitChildren(ctx->initDeclarator()->declarator());
-    if (value.type() == typeid(std::shared_ptr<suckc::ast::FunctionVarBody>)) {
+    if (value.type() == typeid(std::shared_ptr<ast::FunctionVarBody>)) {
       auto funcVarBody =
-          std::any_cast<std::shared_ptr<suckc::ast::FunctionVarBody>>(value);
+          std::any_cast<std::shared_ptr<ast::FunctionVarBody>>(value);
       variable->setName(funcVarBody->getName());
     } else {
-      auto expr =
-          std::any_cast<std::shared_ptr<suckc::ast::IdExpression>>(value);
+      auto expr = std::any_cast<std::shared_ptr<ast::IdExpression>>(value);
       variable->setName(
           ParserTreeHelper::getNodeSource(expr->getRuleContext()));
     }
@@ -182,7 +181,7 @@ std::any SourceGenerator::visitSimpleDeclaration(
 
     return value;
   } else {
-    auto expr = std::make_shared<suckc::ast::Expression>();
+    auto expr = std::make_shared<ast::Expression>();
     expr->setRuleContext(ctx);
     return std::any(expr);
   }
@@ -191,7 +190,7 @@ std::any SourceGenerator::visitSimpleDeclaration(
 std::any SourceGenerator::visitLiteral(SuckCParser::LiteralContext *ctx) {
   SUCKC_D();
 
-  auto literal = std::make_shared<suckc::ast::Literal>();
+  auto literal = std::make_shared<ast::Literal>();
   literal->setRuleContext(ctx);
 
   d->traceNodeUnderNextIndent(ctx);
@@ -202,7 +201,7 @@ std::any SourceGenerator::visitLiteral(SuckCParser::LiteralContext *ctx) {
 std::any SourceGenerator::visitPrimaryExpression(
     SuckCParser::PrimaryExpressionContext *ctx) {
   SUCKC_D();
-  auto expr = std::make_shared<suckc::ast::Expression>();
+  auto expr = std::make_shared<ast::Expression>();
   expr->setRuleContext(ctx);
 
   d->traceNodeUnderNextIndent(ctx);
@@ -213,7 +212,7 @@ std::any SourceGenerator::visitPrimaryExpression(
 std::any
 SourceGenerator::visitIdExpression(SuckCParser::IdExpressionContext *ctx) {
   SUCKC_D();
-  auto expr = std::make_shared<suckc::ast::IdExpression>();
+  auto expr = std::make_shared<ast::IdExpression>();
   expr->setRuleContext(ctx);
 
   return std::any(expr);
@@ -224,7 +223,7 @@ std::any SourceGenerator::visitNoPointerDeclarator(
   SUCKC_D();
 
   if (ctx->noPointerDeclarator() && ctx->parametersAndQualifiers()) {
-    auto expr = std::make_shared<suckc::ast::FunctionVarBody>();
+    auto expr = std::make_shared<ast::FunctionVarBody>();
     expr->setRuleContext(ctx);
 
     // FIXME: We not treat the parameters correctly
@@ -233,9 +232,9 @@ std::any SourceGenerator::visitNoPointerDeclarator(
     // Track the parameters either
     visitChildren(ctx->parametersAndQualifiers());
 
-    if (typeid(std::shared_ptr<suckc::ast::IdExpression>) == nameValue.type()) {
+    if (typeid(std::shared_ptr<ast::IdExpression>) == nameValue.type()) {
       auto castedNameValue =
-          std::any_cast<std::shared_ptr<suckc::ast::IdExpression>>(nameValue);
+          std::any_cast<std::shared_ptr<ast::IdExpression>>(nameValue);
       expr->setName(
           ParserTreeHelper::getNodeSource(castedNameValue->getRuleContext()));
     }
@@ -251,7 +250,7 @@ std::any SourceGenerator::visitNoPointerDeclarator(
 std::any SourceGenerator::visitAssignmentExpression(
     SuckCParser::AssignmentExpressionContext *ctx) {
   SUCKC_D();
-  auto expr = std::make_shared<suckc::ast::Expression>();
+  auto expr = std::make_shared<ast::Expression>();
   expr->setRuleContext(ctx);
 
   d->traceNodeSourceUnderNextIndent(ctx);
@@ -275,7 +274,7 @@ std::any SourceGenerator::visitPointerDeclarator(
 std::any
 SourceGenerator::visitDeclSpecifier(SuckCParser::DeclSpecifierContext *ctx) {
   SUCKC_D();
-  auto expr = std::make_shared<suckc::ast::Expression>();
+  auto expr = std::make_shared<ast::Expression>();
   expr->setRuleContext(ctx);
 
   d->traceNodeUnderNextIndent(ctx);
@@ -286,7 +285,7 @@ SourceGenerator::visitDeclSpecifier(SuckCParser::DeclSpecifierContext *ctx) {
 std::any
 SourceGenerator::visitInitDeclarator(SuckCParser::InitDeclaratorContext *ctx) {
   SUCKC_D();
-  auto expr = std::make_shared<suckc::ast::Expression>();
+  auto expr = std::make_shared<ast::Expression>();
   expr->setRuleContext(ctx);
 
   return visitChildren(ctx);
@@ -308,7 +307,7 @@ std::any SourceGenerator::visitFunctionPointerDeclarator(
 
   visitChildren(ctx);
 
-  auto decl = std::make_shared<suckc::ast::TypeDeclaration>();
+  auto decl = std::make_shared<ast::TypeDeclaration>();
   decl->setRuleContext(ctx);
   decl->setName(ctx->typedefName()->getText());
 
@@ -321,7 +320,7 @@ std::any SourceGenerator::visitSimpleTypedefDeclarator(
 
   visitChildren(ctx);
 
-  auto decl = std::make_shared<suckc::ast::TypeDeclaration>();
+  auto decl = std::make_shared<ast::TypeDeclaration>();
   decl->setRuleContext(ctx);
   decl->setName(ctx->typedefName()->getText());
 
@@ -331,11 +330,9 @@ std::any SourceGenerator::visitSimpleTypedefDeclarator(
 std::any SourceGenerator::visitTypedefDeclaration(
     SuckCParser::TypedefDeclarationContext *ctx) {
   SUCKC_D();
-  auto alias =
-      std::make_shared<suckc::ast::Alias>(ast::Alias::AliasType::Typedef);
+  auto alias = std::make_shared<ast::Alias>(ast::Alias::AliasType::Typedef);
   auto value = visitChildren(ctx);
-  auto decl =
-      std::any_cast<std::shared_ptr<suckc::ast::TypeDeclaration>>(value);
+  auto decl = std::any_cast<std::shared_ptr<ast::TypeDeclaration>>(value);
 
   alias->setRuleContext(ctx);
   alias->setName(decl->getName());
@@ -358,8 +355,7 @@ std::any SourceGenerator::visitAliasDeclaration(
 
   visitChildren(ctx);
 
-  auto alias =
-      std::make_shared<suckc::ast::Alias>(ast::Alias::AliasType::Using);
+  auto alias = std::make_shared<ast::Alias>(ast::Alias::AliasType::Using);
 
   alias->setRuleContext(ctx);
   alias->setName(ctx->Identifier()->getText());

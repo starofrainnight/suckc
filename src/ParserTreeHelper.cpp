@@ -39,7 +39,7 @@ std::string ParserTreeHelper::getNodeRuleName(antlr4::tree::ParseTree *node) {
     if (context != nullptr) {
       // Retrieve the rule name using the rule index
       std::vector<std::string> ruleNames =
-          suckc::World::getInstance()->getParser()->getRuleNames();
+          World::getInstance()->getParser()->getRuleNames();
       std::string ruleName = ruleNames[ruleIndex];
 
       // Now you have the rule name, you can do something with it
