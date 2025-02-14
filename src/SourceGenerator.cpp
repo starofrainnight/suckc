@@ -354,4 +354,29 @@ std::any SourceGenerator::visitTypedefDeclaration(
   return typedefAlias;
 }
 
+std::any SourceGenerator::visitAliasDeclaration(
+    SuckCParser::AliasDeclarationContext *ctx) {
+  SUCKC_D();
+
+  visitChildren(ctx);
+
+  auto typedefAlias = std::make_shared<suckc::ast::TypedefAlias>(
+      ast::TypedefAlias::AliasType::Using);
+
+  typedefAlias->setRuleContext(ctx);
+  typedefAlias->setName(ctx->Identifier()->getText());
+
+  auto scope = d->ctx.getCurrentScope();
+  auto found =
+      (*scope)->findNode(typedefAlias->getType(), typedefAlias->getName());
+  if ((*scope)->findNode(typedefAlias->getType(), typedefAlias->getName())) {
+    std::cout << "WARN: Duplicate type name: " << typedefAlias->getName()
+              << std::endl;
+  }
+
+  (*scope)->addNode(typedefAlias->getName(), typedefAlias);
+
+  return typedefAlias;
+}
+
 } // namespace suckc

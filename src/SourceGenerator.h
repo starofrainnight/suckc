@@ -79,6 +79,9 @@ public:
 
   std::any
   visitTypedefDeclaration(SuckCParser::TypedefDeclarationContext *ctx) override;
+
+  std::any
+  visitAliasDeclaration(SuckCParser::AliasDeclarationContext *ctx) override;
 };
 
 } // namespace suckc
