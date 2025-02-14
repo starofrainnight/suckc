@@ -331,27 +331,25 @@ std::any SourceGenerator::visitSimpleTypedefDeclarator(
 std::any SourceGenerator::visitTypedefDeclaration(
     SuckCParser::TypedefDeclarationContext *ctx) {
   SUCKC_D();
-  auto typedefAlias =
+  auto alias =
       std::make_shared<suckc::ast::Alias>(ast::Alias::AliasType::Typedef);
   auto value = visitChildren(ctx);
   auto decl =
       std::any_cast<std::shared_ptr<suckc::ast::TypeDeclaration>>(value);
 
-  typedefAlias->setRuleContext(ctx);
-  typedefAlias->setName(decl->getName());
-  typedefAlias->setTypeDeclaration(decl);
+  alias->setRuleContext(ctx);
+  alias->setName(decl->getName());
+  alias->setTypeDeclaration(decl);
 
   auto scope = d->ctx.getCurrentScope();
-  auto found =
-      (*scope)->findNode(typedefAlias->getType(), typedefAlias->getName());
-  if ((*scope)->findNode(typedefAlias->getType(), typedefAlias->getName())) {
-    std::cout << "WARN: Duplicate type name: " << typedefAlias->getName()
-              << std::endl;
+  auto found = (*scope)->findNode(alias->getType(), alias->getName());
+  if ((*scope)->findNode(alias->getType(), alias->getName())) {
+    std::cout << "WARN: Duplicate type name: " << alias->getName() << std::endl;
   }
 
-  (*scope)->addNode(typedefAlias->getName(), typedefAlias);
+  (*scope)->addNode(alias->getName(), alias);
 
-  return typedefAlias;
+  return alias;
 }
 
 std::any SourceGenerator::visitAliasDeclaration(
@@ -360,23 +358,21 @@ std::any SourceGenerator::visitAliasDeclaration(
 
   visitChildren(ctx);
 
-  auto typedefAlias =
+  auto alias =
       std::make_shared<suckc::ast::Alias>(ast::Alias::AliasType::Using);
 
-  typedefAlias->setRuleContext(ctx);
-  typedefAlias->setName(ctx->Identifier()->getText());
+  alias->setRuleContext(ctx);
+  alias->setName(ctx->Identifier()->getText());
 
   auto scope = d->ctx.getCurrentScope();
-  auto found =
-      (*scope)->findNode(typedefAlias->getType(), typedefAlias->getName());
-  if ((*scope)->findNode(typedefAlias->getType(), typedefAlias->getName())) {
-    std::cout << "WARN: Duplicate type name: " << typedefAlias->getName()
-              << std::endl;
+  auto found = (*scope)->findNode(alias->getType(), alias->getName());
+  if ((*scope)->findNode(alias->getType(), alias->getName())) {
+    std::cout << "WARN: Duplicate type name: " << alias->getName() << std::endl;
   }
 
-  (*scope)->addNode(typedefAlias->getName(), typedefAlias);
+  (*scope)->addNode(alias->getName(), alias);
 
-  return typedefAlias;
+  return alias;
 }
 
 } // namespace suckc
