@@ -2,12 +2,12 @@
 #include "ParserTreeHelper.h"
 #include "SourceContext.h"
 #include "World.h"
+#include "ast/Alias.h"
 #include "ast/Expression.h"
 #include "ast/FunctionVarBody.h"
 #include "ast/IdExpression.h"
 #include "ast/Literal.h"
 #include "ast/TypeDeclaration.h"
-#include "ast/TypedefAlias.h"
 #include <string>
 #include <typeinfo>
 
@@ -331,8 +331,8 @@ std::any SourceGenerator::visitSimpleTypedefDeclarator(
 std::any SourceGenerator::visitTypedefDeclaration(
     SuckCParser::TypedefDeclarationContext *ctx) {
   SUCKC_D();
-  auto typedefAlias = std::make_shared<suckc::ast::TypedefAlias>(
-      ast::TypedefAlias::AliasType::Typedef);
+  auto typedefAlias =
+      std::make_shared<suckc::ast::Alias>(ast::Alias::AliasType::Typedef);
   auto value = visitChildren(ctx);
   auto decl =
       std::any_cast<std::shared_ptr<suckc::ast::TypeDeclaration>>(value);
@@ -360,8 +360,8 @@ std::any SourceGenerator::visitAliasDeclaration(
 
   visitChildren(ctx);
 
-  auto typedefAlias = std::make_shared<suckc::ast::TypedefAlias>(
-      ast::TypedefAlias::AliasType::Using);
+  auto typedefAlias =
+      std::make_shared<suckc::ast::Alias>(ast::Alias::AliasType::Using);
 
   typedefAlias->setRuleContext(ctx);
   typedefAlias->setName(ctx->Identifier()->getText());

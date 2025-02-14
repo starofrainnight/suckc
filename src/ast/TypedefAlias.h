@@ -8,7 +8,7 @@
 namespace suckc {
 namespace ast {
 
-class TypedefAlias : public Node {
+class Alias : public Node {
 public:
   static const Type kNodeType = Type::Alias;
 
@@ -17,7 +17,7 @@ public:
     Using,
   };
 
-  TypedefAlias(AliasType aliasType, Type type = kNodeType)
+  Alias(AliasType aliasType, Type type = kNodeType)
       : Node(type), aliasType_(aliasType) {}
 
   /**
