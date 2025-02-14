@@ -12,7 +12,13 @@ class TypedefAlias : public Node {
 public:
   static const Type kNodeType = Type::Alias;
 
-  TypedefAlias(Type type = kNodeType) : Node(type) {}
+  enum class AliasType {
+    Typedef,
+    Using,
+  };
+
+  TypedefAlias(AliasType aliasType, Type type = kNodeType)
+      : Node(type), aliasType_(aliasType) {}
 
   /**
    * Set type declaration
@@ -30,7 +36,10 @@ public:
     return typeDeclaration_;
   }
 
+  AliasType getAliasType() { return aliasType_; }
+
   std::shared_ptr<TypeDeclaration> typeDeclaration_;
+  AliasType aliasType_;
 };
 
 } // namespace ast

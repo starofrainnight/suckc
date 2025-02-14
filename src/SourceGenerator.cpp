@@ -331,7 +331,8 @@ std::any SourceGenerator::visitSimpleTypedefDeclarator(
 std::any SourceGenerator::visitTypedefDeclaration(
     SuckCParser::TypedefDeclarationContext *ctx) {
   SUCKC_D();
-  auto typedefAlias = std::make_shared<suckc::ast::TypedefAlias>();
+  auto typedefAlias = std::make_shared<suckc::ast::TypedefAlias>(
+      ast::TypedefAlias::AliasType::Typedef);
   auto value = visitChildren(ctx);
   auto decl =
       std::any_cast<std::shared_ptr<suckc::ast::TypeDeclaration>>(value);
