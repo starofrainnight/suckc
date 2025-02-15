@@ -50,4 +50,4 @@ add_executable(
     ${ANTLR4_SRC_FILES_suckc_parser}
 )
 add_dependencies(${PROJECT_NAME} antlr4_shared)
-target_link_libraries(${PROJECT_NAME} PRIVATE antlr4_shared ${wxWidgets_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} PRIVATE antlr4_shared ${wxWidgets_LIBRARIES} glog::glog)

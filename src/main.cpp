@@ -15,6 +15,7 @@
 #include "World.h"
 #include <antlr4-runtime.h>
 #include <fstream>
+#include <glog/logging.h>
 #include <iostream>
 #include <wx/app.h>
 #include <wx/cmdline.h>
@@ -50,6 +51,9 @@ int main(int argc, char *argv[]) {
 
   bool isDebug = false;
 
+  google::InitGoogleLogging(argv[0]);
+  FLAGS_logtostderr = true;
+
   wxCmdLineParser cmdLineParser(cmdLineDesc, argc, argv);
   auto ret = cmdLineParser.Parse();
   if (-1 == ret) {
@@ -64,11 +68,9 @@ int main(int argc, char *argv[]) {
 
   auto fpath = cmdLineParser.GetParam(0);
 
-  std::cout << "Parsing file: " << fpath.c_str().AsChar() << std::endl;
-
   std::ifstream stream(fpath.c_str().AsChar());
   if (!stream) {
-    std::cerr << "Failed to open input file." << std::endl;
+    LOG(INFO) << "Failed to open input file!";
     return -4;
   }
 
