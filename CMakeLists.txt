@@ -34,7 +34,7 @@ antlr4_generate(
     "${ANTLR4_TOKEN_DIRECTORY_suckc_lexer}"
 )
 
-    # add directories for generated include files
+# add directories for generated include files
 include_directories(
     "${CMAKE_CURRENT_SOURCE_DIR}/src"
     ${PROJECT_BINARY_DIR}
@@ -51,3 +51,4 @@ add_executable(
 )
 add_dependencies(${PROJECT_NAME} antlr4_shared)
 target_link_libraries(${PROJECT_NAME} PRIVATE antlr4_shared ${wxWidgets_LIBRARIES} glog::glog)
+target_compile_definitions(${PROJECT_NAME} PUBLIC GLOG_NO_ABBREVIATED_SEVERITIES)
