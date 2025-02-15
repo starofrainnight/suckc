@@ -70,7 +70,7 @@ int main(int argc, char *argv[]) {
 
   std::ifstream stream(fpath.c_str().AsChar());
   if (!stream) {
-    LOG(INFO) << "Failed to open input file!";
+    LOG(ERROR) << "Failed to open input file!";
     return -4;
   }
 
