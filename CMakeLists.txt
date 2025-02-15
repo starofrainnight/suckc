@@ -8,6 +8,8 @@ include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/options.cmake")
 
 find_package(wxWidgets REQUIRED base core)
 find_package(Antlr4Ex)
+find_package(glog REQUIRED)
+find_package(absl REQUIRED)
 
 include(${wxWidgets_USE_FILE})
 
