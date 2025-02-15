@@ -20,8 +20,6 @@
 #include <wx/app.h>
 #include <wx/cmdline.h>
 
-// struct test demo[] = {{56, 23, "hello"}, {-1, 93463, "world"}, {7, 5, "!!"}};
-
 static const wxCmdLineEntryDesc cmdLineDesc[] = {
     {wxCMD_LINE_SWITCH, "h", "help", "show this help message",
      wxCMD_LINE_VAL_NONE, wxCMD_LINE_OPTION_HELP},
@@ -56,6 +54,7 @@ int main(int argc, char *argv[]) {
 
   wxCmdLineParser cmdLineParser(cmdLineDesc, argc, argv);
   auto ret = cmdLineParser.Parse();
+
   if (-1 == ret) {
     return -2;
   }
