@@ -4,3 +4,4 @@ build/
 .antlr
 .idea
 .DS_Store
+.cache/
