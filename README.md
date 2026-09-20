@@ -76,29 +76,30 @@ self-contained C sources.
 
 ## Current Status
 
-- **Implementation**: originally written in C++ (ANTLR4 + C++20); being
-  rewritten in Go.
+- **Implementation**: originally written in C++ (ANTLR4 + C++20); the C++
+  codebase has been removed and the Go rewrite is underway. The CLI scaffold
+  (cobra) is complete; transpilation is not implemented yet.
 - **Frontend**: ANTLR4 grammar — `src/SuckCLexer.g4`, `src/SuckCParser.g4`
-  (based on the antlr4 C++14 grammar).
-- **Backend**: AST built from the parse tree; scopes tracked via
+  (based on the antlr4 C++14 grammar), preserved for future frontend
+  integration.
+- **Backend**: planned — AST built from the parse tree; scopes tracked via
   `SourceContext`; code emitted by the source generator.
 
 ## Build & Run
 
 ```bash
-cmake -B build -DCMAKE_BUILD_TYPE=Debug
-cmake --build build
-./build/suckc SuckC.suckc
+go build ./...
+go run ./cmd/suckc SuckC.suckc
 ```
 
-Verbose logs:
+Debug (stub this phase):
 
 ```bash
-GLOG_logtostderr=1 ./build/suckc SuckC.suckc
+go run ./cmd/suckc -d SuckC.suckc
 ```
 
-Debug (dump the AST tree):
+Tests:
 
 ```bash
-./build/suckc -d SuckC.suckc
+go test ./...
 ```
