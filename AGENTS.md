@@ -14,3 +14,7 @@ current status, and build/run instructions.
 
 - Standard Go formatting (`gofmt`), stdlib `testing` for tests
 - No CI, no linter scripts yet
+- Reuse: prefer existing libraries, built-in functionality, and logic already
+  in the project over writing new code from scratch
+- Readability and maintainability: favor simple, self-documenting code that
+  a new contributor can understand and modify with confidence
