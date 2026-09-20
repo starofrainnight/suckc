@@ -10,4 +10,6 @@ build/
 .sisyphus/
 .codegraph/
 opencode.jsonc
+opencode.local.jsonc
+.env
 *.mcp.json
