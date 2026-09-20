@@ -68,9 +68,9 @@ func TestExistingFile(t *testing.T) {
 	if err != nil {
 		t.Fatalf("expected no error, got %v", err)
 	}
-	expected := "suckc: ../../SuckC.suckc: transpilation not implemented yet"
+	expected := "suckc: ../../SuckC.suckc: parsed 7 declarations"
 	if !strings.Contains(stdout, expected) {
-		t.Errorf("expected placeholder output, got: %s", stdout)
+		t.Errorf("expected declaration count output, got: %s", stdout)
 	}
 }
 
@@ -79,8 +79,8 @@ func TestDebugFlag(t *testing.T) {
 	if err != nil {
 		t.Fatalf("expected no error, got %v", err)
 	}
-	if !strings.Contains(stdout, "transpilation not implemented yet") {
-		t.Errorf("expected placeholder output, got: %s", stdout)
+	if !strings.Contains(stdout, "(translationUnit") {
+		t.Errorf("expected parse tree dump, got: %s", stdout)
 	}
 }
 
