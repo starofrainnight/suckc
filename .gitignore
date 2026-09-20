@@ -8,3 +8,6 @@ build/
 .DS_Store
 .cache/
 .sisyphus/
+.codegraph/
+opencode.jsonc
+*.mcp.json
