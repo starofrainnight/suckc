@@ -1,18 +1,9 @@
 # SuckC Compiler
 
-## Build & Run
+## Overview
 
-```sh
-go build ./...
-go run ./cmd/suckc SuckC.suckc
-go run ./cmd/suckc -d SuckC.suckc      # debug flag (stub this phase)
-go test ./...
-```
-
-## Architecture
-
-- Go rewrite in progress — cobra CLI at `cmd/suckc`; ANTLR4 grammar
-  (`src/*.g4`) preserved for future frontend integration.
+See [README.md](README.md) for project description, design goals, roadmap,
+current status, and build/run instructions.
 
 ## Dependencies
 
