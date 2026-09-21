@@ -3,9 +3,12 @@ package main
 import (
 	"fmt"
 	"os"
+	"path/filepath"
+	"strings"
 
 	"github.com/spf13/cobra"
 
+	"github.com/starofrainnight/suckc/internal/backend"
 	"github.com/starofrainnight/suckc/internal/frontend"
 )
 
@@ -36,11 +39,17 @@ func newRootCmd() *cobra.Command {
 				return nil
 			}
 
-			decls := 0
-			if seq := result.Tree.DeclarationSeq(); seq != nil {
-				decls = len(seq.AllDeclaration())
+			src, err := backend.Generate(result)
+			if err != nil {
+				return fmt.Errorf("generate %s: %w", file, err)
 			}
-			fmt.Printf("suckc: %s: parsed %d declarations\n", file, decls)
+
+			out := strings.TrimSuffix(file, filepath.Ext(file)) + ".c"
+			if err := os.WriteFile(out, []byte(src), 0o644); err != nil {
+				return fmt.Errorf("write %s: %w", out, err)
+			}
+
+			fmt.Printf("suckc: %s: generated %s\n", file, out)
 			return nil
 		},
 	}

@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 )
@@ -63,14 +64,48 @@ func TestMissingFile(t *testing.T) {
 	}
 }
 
-func TestExistingFile(t *testing.T) {
-	stdout, _, err := runCommand("../../SuckC.suckc")
+func TestGenerateFile(t *testing.T) {
+	dir := t.TempDir()
+	src := "// test\nint a = 0;\n"
+	in := filepath.Join(dir, "hello.suckc")
+	if err := os.WriteFile(in, []byte(src), 0o644); err != nil {
+		t.Fatalf("write input: %v", err)
+	}
+
+	stdout, _, err := runCommand(in)
 	if err != nil {
 		t.Fatalf("expected no error, got %v", err)
 	}
-	expected := "suckc: ../../SuckC.suckc: parsed 7 declarations"
-	if !strings.Contains(stdout, expected) {
-		t.Errorf("expected declaration count output, got: %s", stdout)
+
+	out := filepath.Join(dir, "hello.c")
+	got, err := os.ReadFile(out)
+	if err != nil {
+		t.Fatalf("expected generated %s, got %v", out, err)
+	}
+	if string(got) != src {
+		t.Errorf("expected output to equal input, got: %q", got)
+	}
+	if !strings.Contains(stdout, "generated "+out) {
+		t.Errorf("expected generated message, got: %s", stdout)
+	}
+}
+
+func TestGenerateFileKeepsDir(t *testing.T) {
+	dir := t.TempDir()
+	in := filepath.Join(dir, "sub", "deep.suckc")
+	if err := os.MkdirAll(filepath.Dir(in), 0o755); err != nil {
+		t.Fatalf("mkdir: %v", err)
+	}
+	if err := os.WriteFile(in, []byte("int x;\n"), 0o644); err != nil {
+		t.Fatalf("write input: %v", err)
+	}
+
+	if _, _, err := runCommand(in); err != nil {
+		t.Fatalf("expected no error, got %v", err)
+	}
+
+	if _, err := os.Stat(filepath.Join(dir, "sub", "deep.c")); err != nil {
+		t.Errorf("expected deep.c next to deep.suckc, got %v", err)
 	}
 }
 

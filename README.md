@@ -79,8 +79,8 @@ self-contained C sources.
 - **Implementation**: originally written in C++ (ANTLR4 + C++20); the C++
   codebase has been removed and the Go rewrite is underway. The CLI scaffold
   (cobra) is complete; the frontend reads `*.suckc` sources and builds the
-  ANTLR4 parse tree; code generation (`.c` / `.h` output) is not implemented
-  yet.
+  ANTLR4 parse tree; code generation emits `.c` output next to each source
+  (Phase 1 identity emission — output still contains C++ constructs).
 - **Frontend**: ANTLR4 grammar — `internal/parser/SuckCLexer.g4`,
   `internal/parser/SuckCParser.g4` (based on the antlr4 C++14 grammar), with
   the Go parser generated into the same package and committed, so the module
