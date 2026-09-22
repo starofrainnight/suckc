@@ -377,9 +377,6 @@ type SuckCParserVisitor interface {
 	// Visit a parse tree produced by SuckCParser#cvQualifier.
 	VisitCvQualifier(ctx *CvQualifierContext) interface{}
 
-	// Visit a parse tree produced by SuckCParser#refqualifier.
-	VisitRefqualifier(ctx *RefqualifierContext) interface{}
-
 	// Visit a parse tree produced by SuckCParser#declaratorid.
 	VisitDeclaratorid(ctx *DeclaratoridContext) interface{}
 

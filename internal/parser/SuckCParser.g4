@@ -68,15 +68,15 @@ lambdaIntroducer: LeftBracket lambdaCapture? RightBracket;
 
 lambdaCapture: captureList | captureDefault (Comma captureList)?;
 
-captureDefault: And | Assign;
+captureDefault: Assign;
 
 captureList: capture (Comma capture)* Ellipsis?;
 
 capture: simpleCapture | initcapture;
 
-simpleCapture: And? Identifier | This;
+simpleCapture: Identifier | This;
 
-initcapture: And? Identifier initializer;
+initcapture: Identifier initializer;
 
 lambdaDeclarator:
     LeftParen parameterDeclarationClause? RightParen Mutable? exceptionSpecification? attributeSpecifierSeq? trailingReturnType?
@@ -449,20 +449,16 @@ noPointerDeclarator:
 ;
 
 parametersAndQualifiers:
-    LeftParen parameterDeclarationClause? RightParen cvQualifierSeq? refqualifier? exceptionSpecification? attributeSpecifierSeq?
+    LeftParen parameterDeclarationClause? RightParen cvQualifierSeq? exceptionSpecification? attributeSpecifierSeq?
 ;
 
 trailingReturnType: Arrow trailingTypeSpecifierSeq abstractDeclarator?;
 
-pointerOperator: (And | AndAnd) attributeSpecifierSeq?
-    | nestedNameSpecifier? Star attributeSpecifierSeq? cvQualifierSeq?
-;
+pointerOperator: nestedNameSpecifier? Star attributeSpecifierSeq? cvQualifierSeq?;
 
 cvQualifierSeq: cvQualifier+;
 
 cvQualifier: Const | Volatile;
-
-refqualifier: And | AndAnd;
 
 declaratorid: Ellipsis? idExpression;
 
