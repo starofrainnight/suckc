@@ -19,6 +19,14 @@ current status, and build/run instructions.
 - Readability and maintainability: favor simple, self-documenting code that
   a new contributor can understand and modify with confidence
 
+## Syntax Rules Documentation
+
+`docs/syntax.md` records the SuckC language syntax rules, written for users.
+It documents only rules that differ from or extend the C89 base grammar.
+
+**Any code change that affects the language syntax — adding, removing, or
+modifying a rule — must update `docs/syntax.md` in the same change.**
+
 <!-- CODEGRAPH_START -->
 ## CodeGraph
 
