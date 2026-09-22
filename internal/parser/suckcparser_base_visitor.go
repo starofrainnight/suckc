@@ -500,10 +500,6 @@ func (v *BaseSuckCParserVisitor) VisitCvQualifier(ctx *CvQualifierContext) inter
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseSuckCParserVisitor) VisitRefqualifier(ctx *RefqualifierContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
 func (v *BaseSuckCParserVisitor) VisitDeclaratorid(ctx *DeclaratoridContext) interface{} {
 	return v.VisitChildren(ctx)
 }
