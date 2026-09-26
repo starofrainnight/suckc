@@ -53,5 +53,15 @@ func Analyze(res *frontend.ParseResult, opts Options) (Subs, error) {
 	default:
 		return nil, fmt.Errorf("sema: invalid target bits %d (must be 16, 32, or 64)", opts.TargetBits)
 	}
-	return Subs{}, nil
+	a := newAnalyzer(opts)
+	if err := pass1(res, a); err != nil {
+		return nil, err
+	}
+	if err := pass2(res, a); err != nil {
+		return nil, err
+	}
+	if err := scanForbiddenAutos(res, a); err != nil {
+		return nil, err
+	}
+	return a.Subs, nil
 }
