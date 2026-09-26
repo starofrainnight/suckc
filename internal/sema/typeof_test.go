@@ -103,7 +103,7 @@ func TestTypeOfExpressions(t *testing.T) {
 		{"i && d", Type{"int", 0}},
 		{"i ? 1 : 2", Type{"int", 0}},
 		{"i ? 1 : d", Type{"double", 0}},
-		{"arr", Type{"int", 1}},   // array decay
+		{"arr", Type{"int", 1}},    // array decay
 		{"arr[0]", Type{"int", 0}}, // subscript on decayed array
 		{"p[1]", Type{"int", 0}},   // subscript on pointer
 		{"s", Type{"const char", 1}},
@@ -147,15 +147,15 @@ func TestTypeOfErrors(t *testing.T) {
 		expr string
 		want string
 	}{
-		{"nope", "unknown identifier 'nope'"},      // incl. NULL-style unknowns
-		{"getu()", "unknown identifier 'getu'"},    // undeclared function call
-		{"1 << 2", "unsupported expression"},       // shift: not in spec 6.2 table
-		{"*i", "insufficient pointer depth"},       // deref non-pointer
+		{"nope", "unknown identifier 'nope'"},       // incl. NULL-style unknowns
+		{"getu()", "unknown identifier 'getu'"},     // undeclared function call
+		{"1 << 2", "unsupported expression"},        // shift: not in spec 6.2 table
+		{"*i", "insufficient pointer depth"},        // deref non-pointer
 		{"arr[0][0]", "insufficient pointer depth"}, // second subscript level (spec 5: no shape)
-		{"i++", "unsupported expression"},          // ++ deferred (spec 11)
-		{"i = 3", "unsupported expression"},        // assignment as expression
-		{"p + 1", "incompatible operand types"},    // pointer arithmetic not in table
-		{"i . x", "unsupported expression"}, // member access deferred (spec 11)
+		{"i++", "unsupported expression"},           // ++ deferred (spec 11)
+		{"i = 3", "unsupported expression"},         // assignment as expression
+		{"p + 1", "incompatible operand types"},     // pointer arithmetic not in table
+		{"i . x", "unsupported expression"},         // member access deferred (spec 11)
 	}
 	for _, c := range cases {
 		_, err := deduceExpr(t, setupVars, c.expr)
