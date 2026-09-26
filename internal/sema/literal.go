@@ -124,6 +124,9 @@ func deduceLiteralText(text string, o Options) (Type, error) {
 	switch {
 	case strings.HasPrefix(text, `"`):
 		return Type{"const char", 1}, nil
+	case strings.Contains(text, `"`):
+		// prefixed (L"", u8"", ...) or raw string: deferred, not in spec 6.1
+		return Type{}, errUnsupported
 	case strings.HasPrefix(text, "'") && strings.HasSuffix(text, "'") && len(text) >= 3:
 		return Type{"char", 0}, nil
 	case strings.HasPrefix(text, "true"), strings.HasPrefix(text, "false"):
