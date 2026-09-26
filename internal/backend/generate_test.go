@@ -12,7 +12,7 @@ func TestGenerateRoundTrip(t *testing.T) {
 	if err != nil {
 		t.Fatalf("parse: %v", err)
 	}
-	got, err := Generate(res)
+	got, err := Generate(res, nil)
 	if err != nil {
 		t.Fatalf("generate: %v", err)
 	}
@@ -27,7 +27,7 @@ func TestGeneratePreservesCommentsAndWhitespace(t *testing.T) {
 	if err != nil {
 		t.Fatalf("parse: %v", err)
 	}
-	got, err := Generate(res)
+	got, err := Generate(res, nil)
 	if err != nil {
 		t.Fatalf("generate: %v", err)
 	}
@@ -41,7 +41,7 @@ func TestGenerateEmptySource(t *testing.T) {
 	if err != nil {
 		t.Fatalf("parse: %v", err)
 	}
-	got, err := Generate(res)
+	got, err := Generate(res, nil)
 	if err != nil {
 		t.Fatalf("generate: %v", err)
 	}
@@ -51,7 +51,29 @@ func TestGenerateEmptySource(t *testing.T) {
 }
 
 func TestGenerateNoTree(t *testing.T) {
-	if _, err := Generate(nil); err == nil {
+	if _, err := Generate(nil, nil); err == nil {
 		t.Fatal("expected error for nil result")
+	}
+}
+
+func TestGenerateAppliesSubs(t *testing.T) {
+	src := "int a = 0;\nauto i = 12;\n"
+	res, err := frontend.ParseSource(src)
+	if err != nil {
+		t.Fatalf("parse: %v", err)
+	}
+	var autoIdx int
+	for _, tok := range res.Tokens {
+		if tok.GetText() == "auto" {
+			autoIdx = tok.GetTokenIndex()
+		}
+	}
+	got, err := Generate(res, map[int]string{autoIdx: "int"})
+	if err != nil {
+		t.Fatalf("generate: %v", err)
+	}
+	want := "int a = 0;\nint i = 12;\n"
+	if got != want {
+		t.Errorf("got:\n%s\nwant:\n%s", got, want)
 	}
 }
