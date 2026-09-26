@@ -138,3 +138,63 @@ func TestDirectoryAsFile(t *testing.T) {
 		t.Errorf("expected 'file not found' in stderr, got: %s", stderr)
 	}
 }
+
+func TestTargetBitsValidation(t *testing.T) {
+	dir := t.TempDir()
+	in := filepath.Join(dir, "v.suckc")
+	if err := os.WriteFile(in, []byte("void f() {}\n"), 0o644); err != nil {
+		t.Fatalf("write input: %v", err)
+	}
+	_, stderr, err := runCommand("--target-bits", "24", in)
+	if err == nil {
+		t.Fatal("expected error for --target-bits 24")
+	}
+	if !strings.Contains(stderr, "invalid --target-bits 24") {
+		t.Errorf("stderr = %s", stderr)
+	}
+}
+
+func TestAutoEndToEnd(t *testing.T) {
+	dir := t.TempDir()
+	src := "int main(void) {\n\tauto i = 12;\n\treturn i;\n}\n"
+	in := filepath.Join(dir, "e2e.suckc")
+	if err := os.WriteFile(in, []byte(src), 0o644); err != nil {
+		t.Fatalf("write input: %v", err)
+	}
+	if _, _, err := runCommand(in); err != nil {
+		t.Fatalf("run: %v", err)
+	}
+	out, err := os.ReadFile(filepath.Join(dir, "e2e.c"))
+	if err != nil {
+		t.Fatalf("read output: %v", err)
+	}
+	if !strings.Contains(string(out), "int i = 12") {
+		t.Errorf("output missing deduction:\n%s", out)
+	}
+	if strings.Contains(string(out), "auto") {
+		t.Errorf("output still contains auto:\n%s", out)
+	}
+}
+
+func TestAutoTargetBitsEndToEnd(t *testing.T) {
+	dir := t.TempDir()
+	src := "int main(void) {\n\tauto n = 40000;\n\treturn 0;\n}\n"
+	in := filepath.Join(dir, "bits.suckc")
+	if err := os.WriteFile(in, []byte(src), 0o644); err != nil {
+		t.Fatalf("write input: %v", err)
+	}
+	if _, _, err := runCommand("--target-bits", "16", in); err != nil {
+		t.Fatalf("run 16: %v", err)
+	}
+	out16, _ := os.ReadFile(filepath.Join(dir, "bits.c"))
+	if !strings.Contains(string(out16), "long n = 40000") {
+		t.Errorf("bits16 output:\n%s", out16)
+	}
+	if _, _, err := runCommand("--target-bits", "32", in); err != nil {
+		t.Fatalf("run 32: %v", err)
+	}
+	out32, _ := os.ReadFile(filepath.Join(dir, "bits.c"))
+	if !strings.Contains(string(out32), "int n = 40000") {
+		t.Errorf("bits32 output:\n%s", out32)
+	}
+}

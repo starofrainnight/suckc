@@ -4,12 +4,14 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	"github.com/spf13/cobra"
 
 	"github.com/starofrainnight/suckc/internal/backend"
 	"github.com/starofrainnight/suckc/internal/frontend"
+	"github.com/starofrainnight/suckc/internal/sema"
 )
 
 func newRootCmd() *cobra.Command {
@@ -39,7 +41,20 @@ func newRootCmd() *cobra.Command {
 				return nil
 			}
 
-			src, err := backend.Generate(result)
+			bits, err := cmd.Flags().GetInt("target-bits")
+			if err != nil {
+				return err
+			}
+			if bits != 16 && bits != 32 && bits != 64 {
+				return fmt.Errorf("invalid --target-bits %d (must be 16, 32, or 64)", bits)
+			}
+
+			subs, err := sema.Analyze(result, sema.Options{TargetBits: bits, FileName: file})
+			if err != nil {
+				return err
+			}
+
+			src, err := backend.Generate(result, subs)
 			if err != nil {
 				return fmt.Errorf("generate %s: %w", file, err)
 			}
@@ -54,6 +69,8 @@ func newRootCmd() *cobra.Command {
 		},
 	}
 	cmd.Flags().BoolP("debug", "d", false, "dump the parse tree")
+	cmd.Flags().Int("target-bits", strconv.IntSize,
+		"target integer width in bits: 16, 32, or 64 (default: host)")
 	return cmd
 }
 
