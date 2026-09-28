@@ -130,6 +130,11 @@ func collectFileDecl(ctx *parser.SimpleDeclarationContext, a *Analyzer) error {
 		return nil
 	}
 	if hasAuto(seq) {
+		// decltype(auto) is not a deduced type: leave it out of the
+		// pending set so the forbidden-position scan reports it.
+		if hasDecltypeInSeq(seq) {
+			return nil
+		}
 		return collectFileAuto(ctx, a)
 	}
 	if hasEnumInSeq(seq) {
@@ -300,6 +305,16 @@ func hasEnumInSeq(seq parser.IDeclSpecifierSeqContext) bool {
 	found := false
 	walkSeqTerminals(seq, func(t antlr.TerminalNode) {
 		if t.GetSymbol().GetTokenType() == parser.SuckCParserEnum {
+			found = true
+		}
+	})
+	return found
+}
+
+func hasDecltypeInSeq(seq parser.IDeclSpecifierSeqContext) bool {
+	found := false
+	walkSeqTerminals(seq, func(t antlr.TerminalNode) {
+		if t.GetSymbol().GetTokenType() == parser.SuckCParserDecltype {
 			found = true
 		}
 	})

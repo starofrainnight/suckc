@@ -57,6 +57,9 @@ func Analyze(res *frontend.ParseResult, opts Options) (Subs, error) {
 	if err := pass1(res, a); err != nil {
 		return nil, err
 	}
+	if err := pass1b(a); err != nil {
+		return nil, err
+	}
 	if err := pass2(res, a); err != nil {
 		return nil, err
 	}
