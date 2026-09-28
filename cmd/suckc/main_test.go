@@ -198,3 +198,25 @@ func TestAutoTargetBitsEndToEnd(t *testing.T) {
 		t.Errorf("bits32 output:\n%s", out32)
 	}
 }
+
+func TestFileScopeAutoEndToEnd(t *testing.T) {
+	dir := t.TempDir()
+	src := "int a = 0;\nauto *ff = &a;\nint main(void) { return *ff; }\n"
+	in := filepath.Join(dir, "fs.suckc")
+	if err := os.WriteFile(in, []byte(src), 0o644); err != nil {
+		t.Fatalf("write input: %v", err)
+	}
+	if _, _, err := runCommand(in); err != nil {
+		t.Fatalf("run: %v", err)
+	}
+	out, err := os.ReadFile(filepath.Join(dir, "fs.c"))
+	if err != nil {
+		t.Fatalf("read output: %v", err)
+	}
+	if !strings.Contains(string(out), "int *ff = &a;") {
+		t.Errorf("output missing file-scope deduction:\n%s", out)
+	}
+	if strings.Contains(string(out), "auto") {
+		t.Errorf("output still contains auto:\n%s", out)
+	}
+}
