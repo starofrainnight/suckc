@@ -32,16 +32,6 @@ func (w *walker) fail(err error) {
 	}
 }
 
-// errAt wraps a position-less deduction error with the Auto token position.
-func (w *walker) errAt(tok antlr.Token, err error) error {
-	return &Error{
-		File: w.a.Opts.FileName,
-		Line: tok.GetLine(),
-		Col:  tok.GetColumn() + 1,
-		Msg:  err.Error(),
-	}
-}
-
 func (w *walker) EnterEveryRule(node antlr.ParserRuleContext) {
 	if w.err != nil {
 		return
@@ -159,62 +149,17 @@ func (w *walker) declareCondition(n antlr.ParserRuleContext) {
 
 // handleDecl deduces an auto declaration inside a function body.
 func (w *walker) handleDecl(ctx *parser.SimpleDeclarationContext) {
-	seq := ctx.DeclSpecifierSeq()
-	if seq == nil || !hasAuto(seq) {
-		// plain declaration: record into current scope for later lookups
-		if seq != nil {
+	if findAutoToken(ctx.DeclSpecifierSeq()) == nil {
+		if ctx.DeclSpecifierSeq() != nil {
 			w.recordPlainDecl(ctx)
 		}
 		return
 	}
-	autoNode := findAutoToken(seq)
-	if autoNode == nil {
-		return
-	}
-	autoTok := autoNode.GetSymbol()
-	idc := ctx.InitDeclarator()
-	if idc == nil {
-		w.fail(w.errAt(autoTok, errors.New("missing initializer")))
-		return
-	}
-	d := idc.Declarator()
-	if d == nil {
-		w.fail(w.errAt(autoTok, errors.New("missing initializer")))
-		return
-	}
-	shape, err := analyzeDeclarator(d)
-	if err != nil {
-		w.fail(w.errAt(autoTok, err))
-		return
-	}
-	if shape.IsFuncPtr {
-		w.fail(w.errAt(autoTok, errors.New("function-pointer declarator not supported")))
-		return
-	}
-	init := idc.Initializer()
-	if init == nil {
-		w.fail(w.errAt(autoTok, errors.New("missing initializer")))
-		return
-	}
-	base, err := w.baseType(init, shape.IsArray, autoTok)
-	if err != nil {
-		w.fail(w.errAt(autoTok, err))
-		return
-	}
-	if base.Stars < shape.Stars {
-		w.fail(w.errAt(autoTok, errors.New("insufficient pointer depth")))
-		return
-	}
-	final := Type{base.Spelling, base.Stars - shape.Stars}
-	name, _ := declaratorName(d)
-	if name != "" {
-		w.a.Scopes.declare(name, binding{Type: final, IsArray: shape.IsArray})
-	}
-	w.a.Subs[autoTok.GetTokenIndex()] = final.Text()
+	w.fail(deduceAuto(w.a, ctx, false))
 }
 
 // baseType computes the deduced base type of an initializer (spec 6.3).
-func (w *walker) baseType(init parser.IInitializerContext, isArray bool, autoTok antlr.Token) (Type, error) {
+func baseType(a *Analyzer, init parser.IInitializerContext, isArray bool, autoTok antlr.Token) (Type, error) {
 	boi := init.BraceOrEqualInitializer()
 	if boi == nil {
 		// paren initializer: auto i(12) — not in spec 6.3 table
@@ -222,14 +167,14 @@ func (w *walker) baseType(init parser.IInitializerContext, isArray bool, autoTok
 	}
 	if braced := boi.BracedInitList(); braced != nil {
 		// bare brace form without '=' (auto a {1,2}) — treat as braced
-		return w.bracedBase(braced, isArray)
+		return bracedBase(a, braced, isArray)
 	}
 	clause := boi.InitializerClause()
 	if clause == nil {
 		return Type{}, errors.New("missing initializer")
 	}
 	if braced := clause.BracedInitList(); braced != nil {
-		return w.bracedBase(braced, isArray)
+		return bracedBase(a, braced, isArray)
 	}
 	ae := clause.AssignmentExpression()
 	if ae == nil {
@@ -241,11 +186,11 @@ func (w *walker) baseType(init parser.IInitializerContext, isArray bool, autoTok
 		}
 		return Type{}, errUnsupportedExpr
 	}
-	return typeOf(ae, w.a)
+	return typeOf(ae, a)
 }
 
 // bracedBase deduces the element type from the FIRST element (spec 6.3).
-func (w *walker) bracedBase(braced parser.IBracedInitListContext, isArray bool) (Type, error) {
+func bracedBase(a *Analyzer, braced parser.IBracedInitListContext, isArray bool) (Type, error) {
 	if !isArray {
 		return Type{}, errUnsupportedExpr
 	}
@@ -264,7 +209,7 @@ func (w *walker) bracedBase(braced parser.IBracedInitListContext, isArray bool) 
 	if ae == nil {
 		return Type{}, errors.New("empty initializer list")
 	}
-	return typeOf(ae, w.a)
+	return typeOf(ae, a)
 }
 
 // isStringLitExpr reports whether the expression is a single string literal.
