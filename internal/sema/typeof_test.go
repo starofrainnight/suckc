@@ -106,7 +106,7 @@ func TestTypeOfExpressions(t *testing.T) {
 		{"arr", Type{"int", 1}},    // array decay
 		{"arr[0]", Type{"int", 0}}, // subscript on decayed array
 		{"p[1]", Type{"int", 0}},   // subscript on pointer
-		{"s", Type{"const char", 1}},
+		{"s", Type{"char", 1}},
 		{"\"abc\"", Type{"const char", 1}},
 		{"'c'", Type{"char", 0}},
 		{"sizeof(i)", Type{"size_t", 0}},

@@ -134,6 +134,12 @@ func unaryTypeOf(u *parser.UnaryExpressionContext, a *Analyzer) (Type, error) {
 		}
 		switch op.GetText() {
 		case "&":
+			// The address of an object keeps its qualifiers, so a plain
+			// name operand is read as declared instead of through the
+			// value-read path, which drops cv.
+			if lt, ok := lvalueType(inner, a); ok {
+				return Type{lt.Spelling, lt.Stars + 1}, nil
+			}
 			return Type{t.Spelling, t.Stars + 1}, nil
 		case "*":
 			if t.Stars == 0 {
@@ -211,6 +217,55 @@ func postfixTypeOf(p *parser.PostfixExpressionContext, a *Analyzer) (Type, error
 	return Type{}, errUnsupportedExpr
 }
 
+// lvalueType returns the declared type of a plain name operand, keeping
+// its qualifiers and applying array decay. It reports false when the
+// operand is not a simple name, in which case the caller falls back to
+// the ordinary expression type.
+func lvalueType(node antlr.Tree, a *Analyzer) (Type, bool) {
+	for {
+		switch n := node.(type) {
+		case *parser.PrimaryExpressionContext:
+			if n.LeftParen() != nil || n.IdExpression() == nil || len(n.AllLiteral()) > 0 {
+				return Type{}, false
+			}
+			name, ok := plainName(n)
+			if !ok {
+				return Type{}, false
+			}
+			b, found := a.lookupVar(name)
+			if !found {
+				return Type{}, false
+			}
+			if b.IsArray {
+				return Type{b.Type.Spelling, b.Type.Stars + 1}, true
+			}
+			return b.Type, true
+		case *parser.PostfixExpressionContext:
+			if p := n.PostfixExpression(); p != nil {
+				node = p
+				continue
+			}
+			if p := n.PrimaryExpression(); p != nil {
+				node = p
+				continue
+			}
+			return Type{}, false
+		case *parser.UnaryExpressionContext:
+			if p := n.PostfixExpression(); p != nil {
+				node = p
+				continue
+			}
+			if e := n.UnaryExpression(); e != nil {
+				node = e
+				continue
+			}
+			return Type{}, false
+		default:
+			return Type{}, false
+		}
+	}
+}
+
 func primaryTypeOf(pr *parser.PrimaryExpressionContext, a *Analyzer) (Type, error) {
 	if pr.LeftParen() != nil {
 		inner := pr.Expression()
@@ -240,7 +295,14 @@ func primaryTypeOf(pr *parser.PrimaryExpressionContext, a *Analyzer) (Type, erro
 				// array decay: element type with Stars+1 (spec 6.2)
 				return Type{b.Type.Spelling, b.Type.Stars + 1}, nil
 			}
-			return b.Type, nil
+			// A value read yields the unqualified type, so `auto j = c;`
+			// on a const c must not produce `const int j`.
+			return Type{stripCV(b.Type.Spelling), b.Type.Stars}, nil
+		}
+		// An enum constant has type int (C89 3.1.1.1) and is not a name in
+		// scope, so it is resolved from the collected enumerators.
+		if a.Enums[name] {
+			return Type{"int", 0}, nil
 		}
 		if _, isFn := a.Funcs[name]; isFn {
 			// function used as value: function-pointer, deferred (spec 11)

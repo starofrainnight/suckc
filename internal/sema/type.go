@@ -3,11 +3,13 @@ package sema
 import (
 	"errors"
 	"math"
+	"strings"
 )
 
 // Type is a source-spelling type with a pointer depth (spec section 5).
 // Spelling is kept verbatim ("int", "unsigned long", "kknd"); no typedef
-// resolution and no cv tracking are performed.
+// resolution is performed. Qualifiers stay inside Spelling, and only
+// value reads strip them (see stripCV).
 type Type struct {
 	Spelling string
 	Stars    int
@@ -27,6 +29,21 @@ func repeat(s string, n int) string {
 		out += s
 	}
 	return out
+}
+
+// stripCV removes const and volatile from a type spelling. A value read
+// yields the unqualified type (C89 6.3.2.1), while taking an address must
+// keep the qualifier, so only value reads call this.
+func stripCV(spelling string) string {
+	fields := strings.Fields(spelling)
+	kept := fields[:0]
+	for _, f := range fields {
+		if f == "const" || f == "volatile" {
+			continue
+		}
+		kept = append(kept, f)
+	}
+	return strings.Join(kept, " ")
 }
 
 // errIncompatible is wrapped by callers into the stable diagnostic
