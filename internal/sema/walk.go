@@ -208,7 +208,7 @@ func (w *walker) handleDecl(ctx *parser.SimpleDeclarationContext) {
 	final := Type{base.Spelling, base.Stars - shape.Stars}
 	name, _ := declaratorName(d)
 	if name != "" {
-		w.a.Scopes.declare(name, binding{final, shape.IsArray})
+		w.a.Scopes.declare(name, binding{Type: final, IsArray: shape.IsArray})
 	}
 	w.a.Subs[autoTok.GetTokenIndex()] = final.Text()
 }

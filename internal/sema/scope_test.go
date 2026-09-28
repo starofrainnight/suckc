@@ -5,9 +5,9 @@ import "testing"
 func TestScopeShadowing(t *testing.T) {
 	s := &scope{}
 	s.push()
-	s.declare("x", binding{Type{"int", 0}, false})
+	s.declare("x", binding{Type: Type{"int", 0}, IsArray: false})
 	s.push()
-	s.declare("x", binding{Type{"long", 0}, false})
+	s.declare("x", binding{Type: Type{"long", 0}, IsArray: false})
 	b, ok := s.lookup("x")
 	if !ok || b.Type != (Type{"long", 0}) {
 		t.Fatalf("inner lookup = %+v, %v", b, ok)

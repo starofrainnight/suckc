@@ -67,12 +67,12 @@ func findProbeInit(t *testing.T, tree antlr.Tree) antlr.Tree {
 
 func setupVars(a *Analyzer) {
 	a.Scopes.push()
-	a.Scopes.declare("i", binding{Type{"int", 0}, false})
-	a.Scopes.declare("u", binding{Type{"unsigned int", 0}, false})
-	a.Scopes.declare("d", binding{Type{"double", 0}, false})
-	a.Scopes.declare("p", binding{Type{"int", 1}, false})
-	a.Scopes.declare("arr", binding{Type{"int", 0}, true})
-	a.Scopes.declare("s", binding{Type{"const char", 1}, false})
+	a.Scopes.declare("i", binding{Type: Type{"int", 0}, IsArray: false})
+	a.Scopes.declare("u", binding{Type: Type{"unsigned int", 0}, IsArray: false})
+	a.Scopes.declare("d", binding{Type: Type{"double", 0}, IsArray: false})
+	a.Scopes.declare("p", binding{Type: Type{"int", 1}, IsArray: false})
+	a.Scopes.declare("arr", binding{Type: Type{"int", 0}, IsArray: true})
+	a.Scopes.declare("s", binding{Type: Type{"const char", 1}, IsArray: false})
 	a.Funcs["geti"] = Type{"int", 0}
 	a.Funcs["getp"] = Type{"int", 1}
 }

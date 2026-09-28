@@ -14,15 +14,30 @@ type Analyzer struct {
 	Funcs    map[string]Type    // pass 1: function name -> return type
 	FileVars map[string]binding // pass 1: file-scope name -> binding
 	Subs     Subs               // pass 2: Auto token index -> replacement
+
+	// Enums holds file-scope enum constant names. C89 3.1.1.1 gives them
+	// type int, so only the names matter and the values are never read.
+	Enums map[string]bool
+	// ConstInits maps a const variable's name to the parse tree of its
+	// initializer clause, so the constant gate can check a const read
+	// recursively.
+	ConstInits map[string]antlr.Tree
+	// pendingAutos holds file-scope auto declarations in source order;
+	// pass 1b deduces them.
+	pendingAutos []*pendingAuto
+	// pendingByName indexes pendingAutos by declarator name.
+	pendingByName map[string]*pendingAuto
 }
 
 func newAnalyzer(opts Options) *Analyzer {
 	return &Analyzer{
-		Opts:     opts,
-		Scopes:   &scope{},
-		Funcs:    map[string]Type{},
-		FileVars: map[string]binding{},
-		Subs:     Subs{},
+		Opts:       opts,
+		Scopes:     &scope{},
+		Funcs:      map[string]Type{},
+		FileVars:   map[string]binding{},
+		Subs:       Subs{},
+		Enums:      map[string]bool{},
+		ConstInits: map[string]antlr.Tree{},
 	}
 }
 
@@ -45,6 +60,12 @@ func pass1(res *frontend.ParseResult, a *Analyzer) error {
 	}
 	if a.FileVars == nil {
 		a.FileVars = map[string]binding{}
+	}
+	if a.Enums == nil {
+		a.Enums = map[string]bool{}
+	}
+	if a.ConstInits == nil {
+		a.ConstInits = map[string]antlr.Tree{}
 	}
 	return walkFileScope(res.Tree, a)
 }
@@ -105,9 +126,18 @@ func collectFunction(ctx *parser.FunctionDefinitionContext, a *Analyzer) error {
 // Function prototypes (declarator with parameters) go to Funcs.
 func collectFileDecl(ctx *parser.SimpleDeclarationContext, a *Analyzer) error {
 	seq := ctx.DeclSpecifierSeq()
+	if seq == nil {
+		return nil
+	}
+	if hasAuto(seq) {
+		return collectFileAuto(ctx, a)
+	}
+	if hasEnumInSeq(seq) {
+		collectEnums(seq, a)
+	}
 	initDecl := ctx.InitDeclarator()
-	if seq == nil || initDecl == nil || hasAuto(seq) {
-		return nil // file-scope auto: rejected by the forbidden-position scan
+	if initDecl == nil {
+		return nil
 	}
 	d := initDecl.Declarator()
 	if d == nil {
@@ -131,6 +161,13 @@ func collectFileDecl(ctx *parser.SimpleDeclarationContext, a *Analyzer) error {
 	a.FileVars[name] = binding{
 		Type:    Type{spellingOf(seq), shape.Stars},
 		IsArray: shape.IsArray,
+		IsConst: isConst(seq),
+	}
+	if isConst(seq) && initDecl.Initializer() != nil {
+		boi := initDecl.Initializer().BraceOrEqualInitializer()
+		if boi != nil && boi.InitializerClause() != nil {
+			a.ConstInits[name] = boi.InitializerClause()
+		}
 	}
 	return nil
 }
@@ -188,28 +225,137 @@ func joinSpaces(parts []string) string {
 	return out
 }
 
+// autoState tracks a pending file-scope auto through pass 1b. The
+// in-progress state doubles as the cycle detector: re-entering a
+// declaration that is still in progress means its type depends on
+// itself, which C has no way to solve.
+type autoState int
+
+const (
+	autoPending autoState = iota
+	autoInProgress
+	autoDone
+)
+
+// pendingAuto is a file-scope auto declaration recorded by pass 1 and
+// resolved later by pass 1b.
+type pendingAuto struct {
+	Decl  *parser.SimpleDeclarationContext
+	Name  string
+	State autoState
+}
+
+// walkSeqTerminals calls fn for every terminal of a declaration
+// specifier sequence, in source order. Every sequence probe shares it so
+// there is only one traversal to keep correct.
+func walkSeqTerminals(seq parser.IDeclSpecifierSeqContext, fn func(antlr.TerminalNode)) {
+	if seq == nil {
+		return
+	}
+	for _, child := range seq.GetChildren() {
+		switch c := child.(type) {
+		case antlr.TerminalNode:
+			fn(c)
+		case antlr.ParserRuleContext:
+			walkTerminals(c, fn)
+		}
+	}
+}
+
+func walkTerminals(ctx antlr.ParserRuleContext, fn func(antlr.TerminalNode)) {
+	for _, child := range ctx.GetChildren() {
+		switch c := child.(type) {
+		case antlr.TerminalNode:
+			fn(c)
+		case antlr.ParserRuleContext:
+			walkTerminals(c, fn)
+		}
+	}
+}
+
 // hasAuto reports whether seq contains an Auto token.
 func hasAuto(seq parser.IDeclSpecifierSeqContext) bool {
-	if seq == nil {
-		return false
-	}
 	found := false
+	walkSeqTerminals(seq, func(t antlr.TerminalNode) {
+		if t.GetSymbol().GetTokenType() == parser.SuckCParserAuto {
+			found = true
+		}
+	})
+	return found
+}
+
+// isConst reports whether seq carries a const qualifier, which
+// spellingOf keeps in the type text (C89 3.5.3).
+func isConst(seq parser.IDeclSpecifierSeqContext) bool {
+	found := false
+	walkSeqTerminals(seq, func(t antlr.TerminalNode) {
+		if t.GetSymbol().GetTokenType() == parser.SuckCParserConst {
+			found = true
+		}
+	})
+	return found
+}
+
+func hasEnumInSeq(seq parser.IDeclSpecifierSeqContext) bool {
+	found := false
+	walkSeqTerminals(seq, func(t antlr.TerminalNode) {
+		if t.GetSymbol().GetTokenType() == parser.SuckCParserEnum {
+			found = true
+		}
+	})
+	return found
+}
+
+func collectEnums(seq parser.IDeclSpecifierSeqContext, a *Analyzer) {
+	if a.Enums == nil {
+		a.Enums = map[string]bool{}
+	}
 	var walk func(n antlr.Tree)
 	walk = func(n antlr.Tree) {
-		if t, ok := n.(antlr.TerminalNode); ok {
-			if t.GetSymbol().GetTokenType() == parser.SuckCParserAuto {
-				found = true
+		switch ctx := n.(type) {
+		case antlr.TerminalNode:
+			return
+		case *parser.EnumSpecifierContext:
+			if list := ctx.EnumeratorList(); list != nil {
+				for _, child := range list.GetChildren() {
+					def, ok := child.(*parser.EnumeratorDefinitionContext)
+					if !ok {
+						continue
+					}
+					en, ok := def.Enumerator().(*parser.EnumeratorContext)
+					if !ok {
+						continue
+					}
+					if id := en.Identifier(); id != nil {
+						a.Enums[id.GetText()] = true
+					}
+				}
 			}
 			return
-		}
-		if pr, ok := n.(antlr.ParserRuleContext); ok {
-			for _, ch := range pr.GetChildren() {
+		case antlr.ParserRuleContext:
+			for _, ch := range ctx.GetChildren() {
 				walk(ch)
 			}
 		}
 	}
 	walk(seq)
-	return found
+}
+
+func collectFileAuto(ctx *parser.SimpleDeclarationContext, a *Analyzer) error {
+	initDecl := ctx.InitDeclarator()
+	if initDecl == nil {
+		return nil
+	}
+	name := ""
+	if initDecl.Declarator() != nil {
+		name, _ = declaratorName(initDecl.Declarator())
+	}
+	a.pendingAutos = append(a.pendingAutos, &pendingAuto{
+		Decl:  ctx,
+		Name:  name,
+		State: autoPending,
+	})
+	return nil
 }
 
 // declaratorName extracts the declared identifier from a declarator.

@@ -2,9 +2,11 @@ package sema
 
 // binding is a declared name in some scope. For array declarations Type
 // holds the ELEMENT type and IsArray marks the shape (spec section 5).
+// IsConst marks a const object, which the C89 3.4 constant gate needs.
 type binding struct {
 	Type    Type
 	IsArray bool
+	IsConst bool
 }
 
 // scope is a stack of frames; lookup searches innermost-first.

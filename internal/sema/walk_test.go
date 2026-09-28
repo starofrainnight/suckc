@@ -37,6 +37,24 @@ func subForAuto(t *testing.T, src string, subs Subs) string {
 	return ""
 }
 
+// allAutoSubs returns the substitution of every Auto token in src, in
+// source order. Subs is keyed by token index, so the order has to come
+// from the token stream rather than from the map.
+func allAutoSubs(t *testing.T, src string, subs Subs) []string {
+	t.Helper()
+	res, err := frontend.ParseSource(src)
+	if err != nil {
+		t.Fatalf("parse: %v", err)
+	}
+	var out []string
+	for _, tok := range res.Tokens {
+		if tok.GetTokenType() == parser.SuckCParserAuto {
+			out = append(out, subs[tok.GetTokenIndex()])
+		}
+	}
+	return out
+}
+
 func TestDeduceIdentifierForm(t *testing.T) {
 	src := "void f() {\n\tauto i = 12;\n}\n"
 	subs, err := analyzeSrc(t, src, Options{TargetBits: 32})
