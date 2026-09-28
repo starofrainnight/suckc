@@ -88,7 +88,7 @@ self-contained C sources.
   `go generate ./internal/parser`.
 - **Backend**: planned — AST built from the parse tree; scopes tracked via
   `SourceContext`; code emitted by the source generator.
-- **Semantic analysis**: `internal/sema` deduces block-scope `auto`
+- **Semantic analysis**: `internal/sema` deduces file-scope and block-scope `auto`
   declaration types (two-pass: TU signatures, then body walk with scopes)
   and the backend expands them in the generated `.c`
   (`auto i = 12` → `int i = 12`); `--target-bits 16|32|64` selects the

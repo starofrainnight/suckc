@@ -29,10 +29,10 @@ bitwise AND.
 
 ## 3. `auto` type deduction
 
-SuckC supports C++-`auto`-style variable declarations at **block scope**
-(including the init part of a `for` statement). The transpiler deduces the
-type from the initializer and writes the concrete type into the generated
-`.c` file:
+SuckC supports C++-`auto`-style variable declarations at **file scope** and
+at **block scope** (including the init part of a `for` statement). The
+transpiler deduces the type from the initializer and writes the concrete
+type into the generated `.c` file:
 
 ```c
 // SuckC:
@@ -51,8 +51,14 @@ Rules:
   operators, comparisons, the ternary operator, address-of / dereference,
   array subscript, `sizeof`, and calls to functions declared in the same
   file (return type only — arguments are not type-checked).
-- `auto` is **rejected** at file scope, in function return types, in
-  function parameters, in `decltype`, in class members, and in range-for.
+- `auto` is **rejected** in function return types, in function parameters,
+  in `decltype`, in class members, and in range-for.
+- A file-scope `auto` initializer must be a C89 constant expression
+  (literals, `sizeof`, enum constants, addresses, and reads of `const`
+  variables). Anything else is reported as
+  `cannot deduce type for 'auto': not a constant expression`.
+- A file-scope `auto` may reference a variable declared later in the file,
+  but a reference cycle is reported as `circular dependency on 'NAME'`.
 - Any deduction failure is a hard error reported as
   `file:line:col: cannot deduce type for 'auto': …` — there is no silent
   fallback.
