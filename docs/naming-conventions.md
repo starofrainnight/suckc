@@ -20,11 +20,11 @@ void startUart();
 ## 2. No visibility by capitalization
 
 Visibility is expressed only by the `public` / `private` / `protected` access
-specifiers of a class, or not at all at file scope. So capitalization is free
+specifiers of a struct, or not at all at file scope. So capitalization is free
 to carry meaning inside the word, and nothing else:
 
 ```c
-class Uart {
+struct Uart {
 public:
   void reset();        // public because of `public:`, not because of `R`
 private:
@@ -72,12 +72,12 @@ Prefer the shortest name that stays unambiguous in its scope:
 
 ## 6. Types
 
-Class, struct, enum, and typedef / alias names start with a capital and use
+Struct, enum, and typedef / alias names start with a capital and use
 PascalCase:
 
 ```c
-class Uart;
-class RingBuffer;
+struct Uart;
+struct RingBuffer;
 enum PinState;
 typedef unsigned int ByteCount;
 ```
@@ -97,7 +97,7 @@ bool parseFrame(int *data, int length);
 Member variables take a **trailing underscore**:
 
 ```c
-class Uart {
+struct Uart {
   int baud_;
   int errorCount_;
 };
@@ -138,7 +138,7 @@ operation with an `-er` suffix: `Reader`, `Writer`, `Closer`, `Encoder`,
 `Comparer`.
 
 SuckC has no `interface` keyword; the rule applies to any type whose whole
-purpose is a single operation, typically an abstract class.
+purpose is a single operation, typically an abstract struct.
 
 ## 12. Errors
 
@@ -157,7 +157,7 @@ semi-symmetric on purpose — the getter reads as a property, the setter reads a
 an action:
 
 ```c
-class Uart {
+struct Uart {
   int baud_;
 
 public:
@@ -179,7 +179,7 @@ belong to: `uart.suckc`, `ringbuffer.suckc`, `crc.suckc`.
 | Kind | Style | Example |
 | --- | --- | --- |
 | Package | lowercase, singular, short | `uart`, `ringbuffer` |
-| Class / struct / enum / typedef | PascalCase | `RingBuffer`, `PinState` |
+| Struct / enum / typedef | PascalCase | `RingBuffer`, `PinState` |
 | Function / method | lowerCamelCase | `readByte()` |
 | Member variable | lowerCamelCase + `_` | `baud_` |
 | Local / parameter | lowerCamelCase | `timeoutMs` |
