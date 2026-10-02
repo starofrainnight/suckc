@@ -13,3 +13,4 @@ opencode.jsonc
 opencode.local.jsonc
 .env
 *.mcp.json
+docs/superpowers
