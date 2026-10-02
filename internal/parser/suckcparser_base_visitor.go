@@ -588,10 +588,6 @@ func (v *BaseSuckCParserVisitor) VisitClassVirtSpecifier(ctx *ClassVirtSpecifier
 	return v.VisitChildren(ctx)
 }
 
-func (v *BaseSuckCParserVisitor) VisitClassKey(ctx *ClassKeyContext) interface{} {
-	return v.VisitChildren(ctx)
-}
-
 func (v *BaseSuckCParserVisitor) VisitMemberSpecification(ctx *MemberSpecificationContext) interface{} {
 	return v.VisitChildren(ctx)
 }

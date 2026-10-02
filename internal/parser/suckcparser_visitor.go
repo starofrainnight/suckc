@@ -443,9 +443,6 @@ type SuckCParserVisitor interface {
 	// Visit a parse tree produced by SuckCParser#classVirtSpecifier.
 	VisitClassVirtSpecifier(ctx *ClassVirtSpecifierContext) interface{}
 
-	// Visit a parse tree produced by SuckCParser#classKey.
-	VisitClassKey(ctx *ClassKeyContext) interface{}
-
 	// Visit a parse tree produced by SuckCParser#memberSpecification.
 	VisitMemberSpecification(ctx *MemberSpecificationContext) interface{}
 
