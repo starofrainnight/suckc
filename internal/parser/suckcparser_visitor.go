@@ -410,6 +410,9 @@ type SuckCParserVisitor interface {
 	// Visit a parse tree produced by SuckCParser#functionDefinition.
 	VisitFunctionDefinition(ctx *FunctionDefinitionContext) interface{}
 
+	// Visit a parse tree produced by SuckCParser#functionDeclarator.
+	VisitFunctionDeclarator(ctx *FunctionDeclaratorContext) interface{}
+
 	// Visit a parse tree produced by SuckCParser#functionBody.
 	VisitFunctionBody(ctx *FunctionBodyContext) interface{}
 
