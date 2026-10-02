@@ -3,6 +3,8 @@ package frontend
 import (
 	"strings"
 	"testing"
+
+	"github.com/starofrainnight/suckc/internal/parser"
 )
 
 func TestParseSourceValid(t *testing.T) {
@@ -54,5 +56,40 @@ func TestParseFileSample(t *testing.T) {
 	}
 	if res.Tree == nil {
 		t.Fatal("expected non-nil tree")
+	}
+}
+
+// `class` is deliberately not a keyword: `struct` is the only type keyword and
+// `typename` covers template parameters. So it must lex as a plain identifier.
+func TestClassIsNotAKeyword(t *testing.T) {
+	res, err := ParseSource("int class = 3;\n")
+	if err != nil {
+		t.Fatalf("parse: %v", err)
+	}
+	seen := false
+	for _, tok := range res.Tokens {
+		if tok.GetText() != "class" {
+			continue
+		}
+		seen = true
+		if got := tok.GetTokenType(); got != parser.SuckCParserIdentifier {
+			t.Errorf("`class` token type = %d, want Identifier (%d)", got, parser.SuckCParserIdentifier)
+		}
+	}
+	if !seen {
+		t.Fatal("no `class` token in source")
+	}
+}
+
+func TestParseSourceStruct(t *testing.T) {
+	for _, src := range []string{
+		"struct S { int a; };\n",
+		"struct S;\n",
+		"enum struct E { A };\n",
+		"enum E : int { A };\n",
+	} {
+		if _, err := ParseSource(src); err != nil {
+			t.Errorf("%q: expected no error, got %v", src, err)
+		}
 	}
 }
