@@ -27,7 +27,35 @@ void f(int *x) {}
 The `&` operator is still available in its C89 meanings: address-of and
 bitwise AND.
 
-## 3. `auto` type deduction
+## 3. No `class` keyword
+
+SuckC has only the C `struct` keyword — the C++ `class` keyword is not part
+of the language. Declare types with `struct`:
+
+```c
+// SuckC (invalid):
+// class Uart { void reset(); };
+
+// SuckC:
+struct Uart { void reset(); };
+```
+
+Nothing is lost, because `struct` and `class` mean the same thing in C++.
+`class` is not reserved either, so it is an ordinary identifier, exactly as in
+C89.
+
+Template type parameters are introduced by `typename`, which also covers the
+`template <…>` form that `class` would otherwise have provided:
+
+```c
+// SuckC (invalid):
+// template <class T> struct Box { T value; };
+
+// SuckC:
+template <typename T> struct Box { T value; };
+```
+
+## 4. `auto` type deduction
 
 SuckC supports C++-`auto`-style variable declarations at **file scope** and
 at **block scope** (including the init part of a `for` statement). The
@@ -52,7 +80,7 @@ Rules:
   array subscript, `sizeof`, and calls to functions declared in the same
   file (return type only — arguments are not type-checked).
 - `auto` is **rejected** in function return types, in function parameters,
-  in `decltype`, in class members, and in range-for.
+  in `decltype`, in struct members, and in range-for.
 - A file-scope `auto` initializer must be a C89 constant expression
   (literals, `sizeof`, enum constants, addresses, and reads of `const`
   variables). Anything else is reported as
@@ -67,7 +95,7 @@ The target integer width (which decides when a literal becomes `long`
 versus `int`) is selected with the compiler flag `--target-bits 16|32|64`;
 the default matches the host.
 
-## 4. Single-declarator declarations
+## 5. Single-declarator declarations
 
 Unlike C89, a variable declaration may declare **at most one** variable:
 `int a, b;` is not accepted. Declare them separately:
@@ -81,7 +109,7 @@ int a;
 int b;
 ```
 
-`for`-init declarations follow the same rule. (Class member lists are
+`for`-init declarations follow the same rule. (Struct member lists are
 unaffected.)
 
 ### Maintenance rule
