@@ -81,6 +81,33 @@ func TestClassIsNotAKeyword(t *testing.T) {
 	}
 }
 
+// A function definition must carry a parameter list. Without that requirement
+// `int C { int a; };` parses as a definition of C returning `int`, which every
+// C compiler rejects.
+func TestFunctionDefinitionNeedsParameterList(t *testing.T) {
+	for _, src := range []string{
+		"int C { int a; };\n",
+		"void f() {}\nint C { int a; };\n",
+	} {
+		if _, err := ParseSource(src); err == nil {
+			t.Errorf("%q: expected syntax error, got none", src)
+		}
+	}
+}
+
+func TestParseSourceFunctionDefinition(t *testing.T) {
+	for _, src := range []string{
+		"void f() {}\n",
+		"int g(int a) { return a; }\n",
+		"int *h() { return 0; }\n",
+		"int (*k)(int) { return 0; }\n",
+	} {
+		if _, err := ParseSource(src); err != nil {
+			t.Errorf("%q: expected no error, got %v", src, err)
+		}
+	}
+}
+
 func TestParseSourceStruct(t *testing.T) {
 	for _, src := range []string{
 		"struct S { int a; };\n",

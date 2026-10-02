@@ -544,6 +544,10 @@ func (v *BaseSuckCParserVisitor) VisitFunctionDefinition(ctx *FunctionDefinition
 	return v.VisitChildren(ctx)
 }
 
+func (v *BaseSuckCParserVisitor) VisitFunctionDeclarator(ctx *FunctionDeclaratorContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BaseSuckCParserVisitor) VisitFunctionBody(ctx *FunctionBodyContext) interface{} {
 	return v.VisitChildren(ctx)
 }
