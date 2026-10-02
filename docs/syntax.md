@@ -112,6 +112,19 @@ int b;
 `for`-init declarations follow the same rule. (Struct member lists are
 unaffected.)
 
+## 6. Function definitions need a parameter list
+
+A function definition must declare its parameters, even when there are none.
+The braces alone are not enough to introduce a definition:
+
+```c
+// SuckC (invalid):
+// int C { int a; };
+
+// SuckC:
+int C(void) { int a; return a; }
+```
+
 ### Maintenance rule
 
 This document must stay in sync with the compiler. Whenever code changes
