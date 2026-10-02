@@ -322,7 +322,7 @@ func findAutoToken(seq parser.IDeclSpecifierSeqContext) antlr.TerminalNode {
 }
 
 // scanForbiddenAutos rejects every Auto token pass 2 did not consume
-// (file scope, return type, parameters, decltype, class members, ...).
+// (file scope, return type, parameters, decltype, struct members, ...).
 func scanForbiddenAutos(res *frontend.ParseResult, a *Analyzer) error {
 	for _, tok := range res.Tokens {
 		if tok.GetTokenType() != parser.SuckCParserAuto {
