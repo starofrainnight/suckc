@@ -52,8 +52,6 @@ Char16: 'char16_t';
 
 Char32: 'char32_t';
 
-Class: 'class';
-
 Const: 'const';
 
 Constexpr: 'constexpr';

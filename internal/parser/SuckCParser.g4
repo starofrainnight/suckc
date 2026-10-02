@@ -357,7 +357,7 @@ theTypeName: className | enumName | typedefName | simpleTemplateId;
 decltypeSpecifier: Decltype LeftParen (expression | Auto) RightParen;
 
 elaboratedTypeSpecifier:
-    classKey (
+    Struct (
         attributeSpecifierSeq? nestedNameSpecifier? Identifier
         | simpleTemplateId
         | nestedNameSpecifier Template? simpleTemplateId
@@ -373,7 +373,7 @@ enumHead: enumkey attributeSpecifierSeq? (nestedNameSpecifier? Identifier)? enum
 
 opaqueEnumDeclaration: enumkey attributeSpecifierSeq? Identifier enumbase? Semi;
 
-enumkey: Enum (Class | Struct)?;
+enumkey: Enum Struct?;
 
 enumbase: Colon typeSpecifierSeq;
 
@@ -531,15 +531,13 @@ className: Identifier | simpleTemplateId;
 classSpecifier: classHead LeftBrace memberSpecification? RightBrace;
 
 classHead:
-    classKey attributeSpecifierSeq? (classHeadName classVirtSpecifier?)? baseClause?
+    Struct attributeSpecifierSeq? (classHeadName classVirtSpecifier?)? baseClause?
     | Union attributeSpecifierSeq? ( classHeadName classVirtSpecifier?)?
 ;
 
 classHeadName: nestedNameSpecifier? className;
 
 classVirtSpecifier: Final;
-
-classKey: Class | Struct;
 
 memberSpecification: (memberdeclaration | accessSpecifier Colon)+;
 
@@ -626,7 +624,7 @@ templateparameterList: templateParameter (Comma templateParameter)*;
 
 templateParameter: typeParameter | parameterDeclaration;
 
-typeParameter: ((Template Less templateparameterList Greater)? Class | Typename_) (
+typeParameter: (Template Less templateparameterList Greater)? Typename_ (
         Ellipsis? Identifier?
         | Identifier? Assign theTypeId
     )
