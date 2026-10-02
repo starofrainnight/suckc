@@ -99,7 +99,7 @@ func walkChildren(node antlr.Tree, a *Analyzer) error {
 // collectFunction records name -> return Type. Parameters are ignored
 // (auto parameters are a hard error elsewhere; arg types are unchecked).
 func collectFunction(ctx *parser.FunctionDefinitionContext, a *Analyzer) error {
-	name, err := declaratorName(ctx.Declarator())
+	name, err := declaratorName(ctx.FunctionDeclarator())
 	if err != nil {
 		return err
 	}
@@ -110,7 +110,7 @@ func collectFunction(ctx *parser.FunctionDefinitionContext, a *Analyzer) error {
 	if seq := ctx.DeclSpecifierSeq(); seq != nil {
 		ret = Type{spellingOf(seq), 0}
 	}
-	shape, err := analyzeDeclarator(ctx.Declarator())
+	shape, err := analyzeDeclarator(ctx.FunctionDeclarator())
 	if err != nil {
 		return err
 	}
@@ -374,7 +374,7 @@ func collectFileAuto(ctx *parser.SimpleDeclarationContext, a *Analyzer) error {
 }
 
 // declaratorName extracts the declared identifier from a declarator.
-func declaratorName(d parser.IDeclaratorContext) (string, error) {
+func declaratorName(d antlr.ParserRuleContext) (string, error) {
 	if d == nil {
 		return "", nil
 	}
@@ -414,7 +414,7 @@ type declShape struct {
 // analyzeDeclarator walks a declarator once and classifies its shape.
 // Star counting skips parameter lists and array bounds: the Star token is
 // shared with the multiplicative operator, so `a[2*3]` must not count.
-func analyzeDeclarator(d parser.IDeclaratorContext) (declShape, error) {
+func analyzeDeclarator(d antlr.ParserRuleContext) (declShape, error) {
 	var s declShape
 	if d == nil {
 		return s, nil

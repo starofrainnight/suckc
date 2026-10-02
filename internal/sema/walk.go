@@ -73,7 +73,7 @@ func (w *walker) ExitEveryRule(node antlr.ParserRuleContext) {
 
 // declareParams records named non-auto parameters of a function.
 func (w *walker) declareParams(fd *parser.FunctionDefinitionContext) {
-	d := fd.Declarator()
+	d := fd.FunctionDeclarator()
 	if d == nil {
 		return
 	}
