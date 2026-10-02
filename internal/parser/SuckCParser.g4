@@ -501,7 +501,13 @@ parameterDeclaration:
 ;
 
 functionDefinition:
-    attributeSpecifierSeq? declSpecifierSeq? declarator virtualSpecifierSeq? functionBody
+    attributeSpecifierSeq? declSpecifierSeq? functionDeclarator virtualSpecifierSeq? functionBody
+;
+
+// Unlike declarator, this always requires a parameter list. Otherwise
+// `int C { int a; };` parses as a definition of C returning `int`.
+functionDeclarator:
+    pointerDeclarator parametersAndQualifiers trailingReturnType?
 ;
 
 functionBody:
