@@ -125,3 +125,121 @@ func TestCommonType(t *testing.T) {
 		t.Error("expected error for int vs int*")
 	}
 }
+
+func TestRankLatticeCoversEveryWidth(t *testing.T) {
+	// long long and long double used to have no rank at all, so a variable
+	// declared with one was rejected the moment it took part in arithmetic.
+	// On a 32-bit embedded target int64_t is spelled "long long", which made
+	// that the common case rather than an exotic one.
+	widths := []struct {
+		spelling string
+		wantRank rank
+		unsigned bool
+	}{
+		{"int", rankInt, false},
+		{"unsigned int", rankInt, true},
+		{"long", rankLong, false},
+		{"unsigned long", rankLong, true},
+		{"long long", rankLongLong, false},
+		{"unsigned long long", rankLongLong, true},
+		{"float", rankFloat, false},
+		{"double", rankDouble, false},
+		{"long double", rankLongDouble, false},
+	}
+	for _, w := range widths {
+		t.Run(w.spelling, func(t *testing.T) {
+			if got := rankOf(Type{w.spelling, 0}); got != w.wantRank {
+				t.Errorf("rankOf(%q) = %d, want %d", w.spelling, got, w.wantRank)
+			}
+			if got := isUnsigned(w.spelling); got != w.unsigned {
+				t.Errorf("isUnsigned(%q) = %v, want %v", w.spelling, got, w.unsigned)
+			}
+		})
+	}
+	if rankLongLong <= rankLong || rankLongDouble <= rankDouble {
+		t.Error("long long must outrank long and long double must outrank double")
+	}
+}
+
+func TestTypeBitsOfWideTypes(t *testing.T) {
+	// C99 6.2.5.4: long long is at least 64 bits everywhere, so it is wider
+	// than long on every ILP32 or 16-bit-int target.
+	cases := []struct {
+		bits int
+		sp   string
+		want int
+	}{
+		{16, "int", 16},
+		{16, "long", 32},
+		{16, "long long", 64},
+		{32, "int", 32},
+		{32, "long", 32},
+		{32, "long long", 64},
+		{64, "int", 32},
+		{64, "long", 64},
+		{64, "long long", 64},
+	}
+	for _, c := range cases {
+		if got := typeBits(c.sp, Options{TargetBits: c.bits}); got != c.want {
+			t.Errorf("typeBits(%q, %d-bit) = %d, want %d", c.sp, c.bits, got, c.want)
+		}
+	}
+}
+
+func TestUsualArithWideTypes(t *testing.T) {
+	cases := []struct {
+		name string
+		bits int
+		a, b Type
+		want Type
+	}{
+		{"long long absorbs int", 32, Type{"long long", 0}, Type{"int", 0}, Type{"long long", 0}},
+		{"long long absorbs long", 32, Type{"long", 0}, Type{"long long", 0}, Type{"long long", 0}},
+		{"unsigned long long absorbs int", 32, Type{"int", 0}, Type{"unsigned long long", 0}, Type{"unsigned long long", 0}},
+		{"long long holds unsigned int on ILP32", 32, Type{"long long", 0}, Type{"unsigned int", 0}, Type{"long long", 0}},
+		{"long long holds unsigned long on ILP32", 32, Type{"long long", 0}, Type{"unsigned long", 0}, Type{"long long", 0}},
+		// LP64: long and long long are both 64-bit, so signed long long cannot
+		// hold every unsigned long value and the result goes unsigned.
+		{"long long loses to unsigned long on LP64", 64, Type{"long long", 0}, Type{"unsigned long", 0}, Type{"unsigned long long", 0}},
+		{"long double absorbs double", 32, Type{"double", 0}, Type{"long double", 0}, Type{"long double", 0}},
+		{"long double absorbs float", 32, Type{"long double", 0}, Type{"float", 0}, Type{"long double", 0}},
+		{"long double absorbs int", 32, Type{"int", 0}, Type{"long double", 0}, Type{"long double", 0}},
+		{"double still beats float", 32, Type{"float", 0}, Type{"double", 0}, Type{"double", 0}},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			got, err := usualArith(c.a, c.b, Options{TargetBits: c.bits})
+			if err != nil {
+				t.Fatalf("unexpected error: %v", err)
+			}
+			if got != c.want {
+				t.Errorf("usualArith(%+v, %+v) = %+v, want %+v", c.a, c.b, got, c.want)
+			}
+		})
+	}
+}
+
+func TestWideTypeArithmeticDeduce(t *testing.T) {
+	cases := []struct {
+		decl string
+		want string
+	}{
+		{"long long g; auto y = g + 1;", "long long"},
+		{"unsigned long long g; auto y = g + 1;", "unsigned long long"},
+		{"long long a; long b; auto y = a * b;", "long long"},
+		{"long double d; auto y = d + 1;", "long double"},
+		{"long double d; double e; auto y = d * e;", "long double"},
+	}
+	for _, c := range cases {
+		t.Run(c.decl, func(t *testing.T) {
+			src := "void f(void) { " + c.decl + " }"
+			subs, err := analyzeSrc(t, src, Options{TargetBits: 32})
+			if err != nil {
+				t.Fatalf("unexpected error: %v", err)
+			}
+			if got := subForAuto(t, src, subs); got != c.want {
+				t.Errorf("deduced %q, want %q", got, c.want)
+			}
+		})
+	}
+}

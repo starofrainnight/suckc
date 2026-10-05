@@ -66,5 +66,8 @@ func Analyze(res *frontend.ParseResult, opts Options) (Subs, error) {
 	if err := scanForbiddenAutos(res, a); err != nil {
 		return nil, err
 	}
+	if err := checkCCalls(res, a); err != nil {
+		return nil, err
+	}
 	return a.Subs, nil
 }

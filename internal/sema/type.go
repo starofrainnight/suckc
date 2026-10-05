@@ -98,8 +98,10 @@ const (
 	rankNone rank = iota
 	rankInt
 	rankLong
+	rankLongLong
 	rankFloat
 	rankDouble
+	rankLongDouble
 )
 
 func rankOf(t Type) rank {
@@ -108,16 +110,39 @@ func rankOf(t Type) rank {
 		return rankInt
 	case "long", "unsigned long":
 		return rankLong
+	case "long long", "unsigned long long":
+		return rankLongLong
 	case "float":
 		return rankFloat
 	case "double":
 		return rankDouble
+	case "long double":
+		return rankLongDouble
 	}
 	return rankNone
 }
 
 func isUnsigned(sp string) bool {
-	return sp == "unsigned int" || sp == "unsigned long"
+	switch sp {
+	case "unsigned int", "unsigned long", "unsigned long long":
+		return true
+	}
+	return false
+}
+
+// unsignedOfRank names the unsigned integer type of a given rank. Both places
+// in usualArith that pick a result by rank go through here: with more than one
+// integer width above int, spelling the choice out at each site is how a rank
+// silently ends up returning "unsigned int".
+func unsignedOfRank(r rank) Type {
+	switch r {
+	case rankLongLong:
+		return Type{"unsigned long long", 0}
+	case rankLong:
+		return Type{"unsigned long", 0}
+	default:
+		return Type{"unsigned int", 0}
+	}
 }
 
 // usualArith implements the C89 6.3.1.8 subset over the deduction table
@@ -134,12 +159,14 @@ func usualArith(a, b Type, o Options) (Type, error) {
 	if ra == rankNone || rb == rankNone {
 		return Type{}, errIncompatible
 	}
-	// Float dominance: double > float > integer ranks.
+	// Float dominance: long double > double > float > integer ranks.
 	if ra >= rankFloat || rb >= rankFloat {
-		if ra == rankDouble || rb == rankDouble {
+		switch {
+		case ra == rankLongDouble || rb == rankLongDouble:
+			return Type{"long double", 0}, nil
+		case ra == rankDouble || rb == rankDouble:
 			return Type{"double", 0}, nil
-		}
-		if ra == rankFloat || rb == rankFloat {
+		default:
 			return Type{"float", 0}, nil
 		}
 	}
@@ -158,20 +185,14 @@ func usualArith(a, b Type, o Options) (Type, error) {
 	ru, rs := rankOf(unsigned), rankOf(signed)
 	if ru >= rs {
 		// Unsigned rank >= signed rank -> unsigned type of that rank.
-		if ru == rankLong {
-			return Type{"unsigned long", 0}, nil
-		}
-		return Type{"unsigned int", 0}, nil
+		return unsignedOfRank(ru), nil
 	}
 	// Signed rank > unsigned rank: signed wins only if it can hold every
 	// value of the unsigned operand (C89 6.3.1.8 case 4).
 	if signedCanHoldUnsigned(signed.Spelling, unsigned.Spelling, o) {
 		return signed, nil
 	}
-	if rs == rankLong {
-		return Type{"unsigned long", 0}, nil
-	}
-	return Type{"unsigned int", 0}, nil
+	return unsignedOfRank(rs), nil
 }
 
 // signedCanHoldUnsigned reports whether the signed target type can represent
@@ -195,6 +216,10 @@ func typeBits(sp string, o Options) int {
 			return 64
 		}
 		return 32
+	case "long long", "unsigned long long":
+		// C99 6.2.5.4 requires long long to be at least 64 bits on every
+		// target, so this is 64 even where long is 32.
+		return 64
 	}
 	return 0
 }

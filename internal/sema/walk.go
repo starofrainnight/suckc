@@ -16,11 +16,19 @@ type walker struct {
 	a      *Analyzer
 	inFunc int   // function nesting depth (>0 => inside a function body)
 	err    error // first error wins
+
+	// C-region argument checking runs inside this walk rather than beside
+	// checkCCalls because it needs the scope stack: by the time the walk has
+	// finished, every block scope has been popped and only file-scope
+	// variables are still resolvable.
+	res      *frontend.ParseResult
+	cFuncs   map[string]frontend.CFuncSig
+	resolver *cTypeResolver
 }
 
 // pass2 walks function bodies in source order, deducing auto declarations.
 func pass2(res *frontend.ParseResult, a *Analyzer) error {
-	w := &walker{a: a}
+	w := &walker{a: a, res: res, cFuncs: cFuncLookup(res), resolver: newCTypeResolver(res.CTypedefs)}
 	l := antlr.NewParseTreeWalker()
 	l.Walk(w, res.Tree)
 	return w.err
@@ -52,6 +60,15 @@ func (w *walker) EnterEveryRule(node antlr.ParserRuleContext) {
 	case *parser.SimpleDeclarationContext:
 		if w.inFunc > 0 {
 			w.handleDecl(ctx)
+			// `f(a, b);` at statement level is this rule, not an expression,
+			// so the argument check has to be told about it here.
+			if name, args, tokIdx, ok := w.declCallArgs(ctx); ok {
+				w.checkCallAgainstC(name, args, tokIdx)
+			}
+		}
+	case *parser.PostfixExpressionContext:
+		if name, args, tokIdx, ok := exprCallArgs(ctx); ok {
+			w.checkCallAgainstC(name, args, tokIdx)
 		}
 	}
 }
@@ -323,17 +340,27 @@ func findAutoToken(seq parser.IDeclSpecifierSeqContext) antlr.TerminalNode {
 
 // scanForbiddenAutos rejects every Auto token pass 2 did not consume
 // (file scope, return type, parameters, decltype, struct members, ...).
+// Tokens inside a C-scope region are raw C to SuckC — C23 `auto` and
+// `const` are legal there — so the scan skips them.
 func scanForbiddenAutos(res *frontend.ParseResult, a *Analyzer) error {
 	for _, tok := range res.Tokens {
 		if tok.GetTokenType() != parser.SuckCParserAuto {
 			continue
 		}
-		if _, ok := a.Subs[tok.GetTokenIndex()]; ok {
+		idx := tok.GetTokenIndex()
+		if res.InRegion(idx) {
 			continue
 		}
+		if _, ok := a.Subs[idx]; ok {
+			continue
+		}
+		file, line := res.SourceAt(idx)
+		if file == "" {
+			file = a.Opts.FileName
+		}
 		return &Error{
-			File: a.Opts.FileName,
-			Line: tok.GetLine(),
+			File: file,
+			Line: line,
 			Col:  tok.GetColumn() + 1,
 			Msg:  "'auto' not allowed here",
 		}

@@ -17,12 +17,20 @@ BooleanLiteral: False_ | True_;
 
 PointerLiteral: Nullptr;
 
-UserDefinedLiteral:
-    UserDefinedIntegerLiteral
-    | UserDefinedFloatingLiteral
-    | UserDefinedStringLiteral
-    | UserDefinedCharacterLiteral
-;
+// C-scope region markers. MUST stay before MultiLineMacro and Directive:
+// all three match the same '#' prefix, and for equal-length matches ANTLR
+// picks the rule declared first. Lexer rule names must start uppercase.
+//
+// The trailing `[ \t]* '\r'?` is required, not cosmetic. Directive matches
+// '#' ~[\n]*, which swallows any trailing blanks and the CR of a CRLF line,
+// so a marker written as "#pragma c_scope_begin " or with CRLF endings would
+// lose the longest-match tie and silently degrade to a hidden Directive --
+// the region would never open. Real trailing content still loses to
+// Directive ("#pragma c_scope_begin x" is matched further by Directive) and
+// stays an ordinary directive.
+CScopeBegin: '#pragma' [ \t]+ 'c_scope_begin' [ \t]* '\r'?;
+
+CScopeEnd: '#pragma' [ \t]+ 'c_scope_end' [ \t]* '\r'?;
 
 MultiLineMacro: '#' (~[\n]*? '\\' '\r'? '\n')+ ~ [\n]+ -> channel (HIDDEN);
 
@@ -279,6 +287,23 @@ fragment Hexquad: HEXADECIMALDIGIT HEXADECIMALDIGIT HEXADECIMALDIGIT HEXADECIMAL
 
 fragment Universalcharactername: '\\u' Hexquad | '\\U' Hexquad Hexquad;
 
+// 'restrict' is a C type qualifier that SuckC does not have. It is a real
+// token rather than a bare Identifier because the C declarator grammar puts
+// qualifiers after the '*' -- "int * restrict p" declares p as
+// "int * restrict" -- so without a distinct token the subgrammar has to read
+// 'restrict' as the declarator's name and the actual name 'p' becomes
+// orphaned. Must precede Identifier: the spellings tie with it on length and
+// ANTLR then takes the rule declared first.
+Restrict: 'restrict' | '__restrict' | '__restrict__';
+
+// 'typeof' / '__typeof__' / '__typeof' need a real token for the same reason
+// Restrict does, and worse: spelled as a bare Identifier, the region
+// subgrammar's typeof form ("Identifier '(' type-name ')'") matches ANY
+// declaration-shaped call. "void f(void);" parses as a typeof specifier
+// followed by nothing, and f disappears. Must precede Identifier, same
+// tie-break reason as Restrict.
+Typeof: 'typeof' | '__typeof__' | '__typeof';
+
 Identifier:
     /*
 	 Identifiernondigit | Identifier Identifiernondigit | Identifier DIGIT
@@ -298,6 +323,20 @@ OctalLiteral: '0' ('\''? OCTALDIGIT)*;
 HexadecimalLiteral: ('0x' | '0X') HEXADECIMALDIGIT ( '\''? HEXADECIMALDIGIT)*;
 
 BinaryLiteral: ('0b' | '0B') BINARYDIGIT ('\''? BINARYDIGIT)*;
+
+// MUST stay after every plain numeric literal rule. ANTLR resolves an
+// equal-length match by declaration order, and 0x0, 0b1 and 0u are each
+// matched by both this rule (as a C++11 user-defined literal: digits plus a
+// suffix) and by the plain literal rule. Declared first, it wins every tie,
+// so every hexadecimal literal and every suffixed integer literal was
+// tokenised as UserDefinedLiteral. Longest-match still holds, so 1_km and
+// 1.5_km keep tokenising as user-defined literals.
+UserDefinedLiteral:
+    UserDefinedIntegerLiteral
+    | UserDefinedFloatingLiteral
+    | UserDefinedStringLiteral
+    | UserDefinedCharacterLiteral
+;
 
 fragment NONZERODIGIT: [1-9];
 

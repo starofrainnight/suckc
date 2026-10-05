@@ -256,6 +256,270 @@ func (v *BaseSuckCParserVisitor) VisitDeclaration(ctx *DeclarationContext) inter
 	return v.VisitChildren(ctx)
 }
 
+func (v *BaseSuckCParserVisitor) VisitCImportRegion(ctx *CImportRegionContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseSuckCParserVisitor) VisitCCDeclarationSeq(ctx *CCDeclarationSeqContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseSuckCParserVisitor) VisitCCExternalDeclaration(ctx *CCExternalDeclarationContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseSuckCParserVisitor) VisitCCAttributesOpt(ctx *CCAttributesOptContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseSuckCParserVisitor) VisitCCAttribute(ctx *CCAttributeContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseSuckCParserVisitor) VisitCCAttributeName(ctx *CCAttributeNameContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseSuckCParserVisitor) VisitCCParenGroup(ctx *CCParenGroupContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseSuckCParserVisitor) VisitCCDeclSpecifiers(ctx *CCDeclSpecifiersContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseSuckCParserVisitor) VisitCCDeclSpecifierPart(ctx *CCDeclSpecifierPartContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseSuckCParserVisitor) VisitCCQualifier(ctx *CCQualifierContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseSuckCParserVisitor) VisitCCTypedefName(ctx *CCTypedefNameContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseSuckCParserVisitor) VisitCCBuiltinTypeSpecifier(ctx *CCBuiltinTypeSpecifierContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseSuckCParserVisitor) VisitCCStructOrUnionSpecifier(ctx *CCStructOrUnionSpecifierContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseSuckCParserVisitor) VisitCCMemberDeclaration(ctx *CCMemberDeclarationContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseSuckCParserVisitor) VisitCCMemberDeclaratorList(ctx *CCMemberDeclaratorListContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseSuckCParserVisitor) VisitCCMemberDeclarator(ctx *CCMemberDeclaratorContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseSuckCParserVisitor) VisitCCBitField(ctx *CCBitFieldContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseSuckCParserVisitor) VisitCCEnumSpecifier(ctx *CCEnumSpecifierContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseSuckCParserVisitor) VisitCCEnumeratorList(ctx *CCEnumeratorListContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseSuckCParserVisitor) VisitCCEnumerator(ctx *CCEnumeratorContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseSuckCParserVisitor) VisitCCTypeofSpecifier(ctx *CCTypeofSpecifierContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseSuckCParserVisitor) VisitCCTypeName(ctx *CCTypeNameContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseSuckCParserVisitor) VisitCCIdentifier(ctx *CCIdentifierContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseSuckCParserVisitor) VisitCCDeclarator(ctx *CCDeclaratorContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseSuckCParserVisitor) VisitCCPlainDeclarator(ctx *CCPlainDeclaratorContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseSuckCParserVisitor) VisitCCPointerOperator(ctx *CCPointerOperatorContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseSuckCParserVisitor) VisitCCPointerQualifier(ctx *CCPointerQualifierContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseSuckCParserVisitor) VisitCCDirectDeclarator(ctx *CCDirectDeclaratorContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseSuckCParserVisitor) VisitCCPlainDirectDeclarator(ctx *CCPlainDirectDeclaratorContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseSuckCParserVisitor) VisitCCDirectDeclaratorSuffix(ctx *CCDirectDeclaratorSuffixContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseSuckCParserVisitor) VisitCCPlainDirectDeclaratorSuffix(ctx *CCPlainDirectDeclaratorSuffixContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseSuckCParserVisitor) VisitCCAbstractDeclarator(ctx *CCAbstractDeclaratorContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseSuckCParserVisitor) VisitCCAbstractDirectDeclarator(ctx *CCAbstractDirectDeclaratorContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseSuckCParserVisitor) VisitCCAbstractDirectDeclaratorSuffix(ctx *CCAbstractDirectDeclaratorSuffixContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseSuckCParserVisitor) VisitCCArraySuffix(ctx *CCArraySuffixContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseSuckCParserVisitor) VisitCCFunctionSuffix(ctx *CCFunctionSuffixContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseSuckCParserVisitor) VisitCCParameterTypeList(ctx *CCParameterTypeListContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseSuckCParserVisitor) VisitCCParameterDeclaration(ctx *CCParameterDeclarationContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseSuckCParserVisitor) VisitCCInitDeclaratorList(ctx *CCInitDeclaratorListContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseSuckCParserVisitor) VisitCCInitDeclarator(ctx *CCInitDeclaratorContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseSuckCParserVisitor) VisitCCInitializerClause(ctx *CCInitializerClauseContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseSuckCParserVisitor) VisitCCBracedInitList(ctx *CCBracedInitListContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseSuckCParserVisitor) VisitCCCompoundStatement(ctx *CCCompoundStatementContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseSuckCParserVisitor) VisitCCBlockItem(ctx *CCBlockItemContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseSuckCParserVisitor) VisitCCLinkageSpecification(ctx *CCLinkageSpecificationContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseSuckCParserVisitor) VisitCCStatement(ctx *CCStatementContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseSuckCParserVisitor) VisitCCExpression(ctx *CCExpressionContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseSuckCParserVisitor) VisitCCAssignmentExpression(ctx *CCAssignmentExpressionContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseSuckCParserVisitor) VisitCCAssignmentOperator(ctx *CCAssignmentOperatorContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseSuckCParserVisitor) VisitCCConditionalExpression(ctx *CCConditionalExpressionContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseSuckCParserVisitor) VisitCCLogicalOrExpression(ctx *CCLogicalOrExpressionContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseSuckCParserVisitor) VisitCCLogicalAndExpression(ctx *CCLogicalAndExpressionContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseSuckCParserVisitor) VisitCCInclusiveOrExpression(ctx *CCInclusiveOrExpressionContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseSuckCParserVisitor) VisitCCExclusiveOrExpression(ctx *CCExclusiveOrExpressionContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseSuckCParserVisitor) VisitCCAndExpression(ctx *CCAndExpressionContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseSuckCParserVisitor) VisitCCEqualityExpression(ctx *CCEqualityExpressionContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseSuckCParserVisitor) VisitCCRelationalExpression(ctx *CCRelationalExpressionContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseSuckCParserVisitor) VisitCCAdditiveExpression(ctx *CCAdditiveExpressionContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseSuckCParserVisitor) VisitCCMultiplicativeExpression(ctx *CCMultiplicativeExpressionContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseSuckCParserVisitor) VisitCCUnaryExpression(ctx *CCUnaryExpressionContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseSuckCParserVisitor) VisitCCUnaryOperator(ctx *CCUnaryOperatorContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseSuckCParserVisitor) VisitCCPostfixExpression(ctx *CCPostfixExpressionContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseSuckCParserVisitor) VisitCCPostfixSuffix(ctx *CCPostfixSuffixContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseSuckCParserVisitor) VisitCCArgumentExpressionList(ctx *CCArgumentExpressionListContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseSuckCParserVisitor) VisitCCPrimaryExpression(ctx *CCPrimaryExpressionContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
+func (v *BaseSuckCParserVisitor) VisitCCConstantExpression(ctx *CCConstantExpressionContext) interface{} {
+	return v.VisitChildren(ctx)
+}
+
 func (v *BaseSuckCParserVisitor) VisitBlockDeclaration(ctx *BlockDeclarationContext) interface{} {
 	return v.VisitChildren(ctx)
 }

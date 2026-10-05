@@ -194,6 +194,204 @@ type SuckCParserVisitor interface {
 	// Visit a parse tree produced by SuckCParser#declaration.
 	VisitDeclaration(ctx *DeclarationContext) interface{}
 
+	// Visit a parse tree produced by SuckCParser#cImportRegion.
+	VisitCImportRegion(ctx *CImportRegionContext) interface{}
+
+	// Visit a parse tree produced by SuckCParser#cCDeclarationSeq.
+	VisitCCDeclarationSeq(ctx *CCDeclarationSeqContext) interface{}
+
+	// Visit a parse tree produced by SuckCParser#cCExternalDeclaration.
+	VisitCCExternalDeclaration(ctx *CCExternalDeclarationContext) interface{}
+
+	// Visit a parse tree produced by SuckCParser#cCAttributesOpt.
+	VisitCCAttributesOpt(ctx *CCAttributesOptContext) interface{}
+
+	// Visit a parse tree produced by SuckCParser#cCAttribute.
+	VisitCCAttribute(ctx *CCAttributeContext) interface{}
+
+	// Visit a parse tree produced by SuckCParser#cCAttributeName.
+	VisitCCAttributeName(ctx *CCAttributeNameContext) interface{}
+
+	// Visit a parse tree produced by SuckCParser#cCParenGroup.
+	VisitCCParenGroup(ctx *CCParenGroupContext) interface{}
+
+	// Visit a parse tree produced by SuckCParser#cCDeclSpecifiers.
+	VisitCCDeclSpecifiers(ctx *CCDeclSpecifiersContext) interface{}
+
+	// Visit a parse tree produced by SuckCParser#cCDeclSpecifierPart.
+	VisitCCDeclSpecifierPart(ctx *CCDeclSpecifierPartContext) interface{}
+
+	// Visit a parse tree produced by SuckCParser#cCQualifier.
+	VisitCCQualifier(ctx *CCQualifierContext) interface{}
+
+	// Visit a parse tree produced by SuckCParser#cCTypedefName.
+	VisitCCTypedefName(ctx *CCTypedefNameContext) interface{}
+
+	// Visit a parse tree produced by SuckCParser#cCBuiltinTypeSpecifier.
+	VisitCCBuiltinTypeSpecifier(ctx *CCBuiltinTypeSpecifierContext) interface{}
+
+	// Visit a parse tree produced by SuckCParser#cCStructOrUnionSpecifier.
+	VisitCCStructOrUnionSpecifier(ctx *CCStructOrUnionSpecifierContext) interface{}
+
+	// Visit a parse tree produced by SuckCParser#cCMemberDeclaration.
+	VisitCCMemberDeclaration(ctx *CCMemberDeclarationContext) interface{}
+
+	// Visit a parse tree produced by SuckCParser#cCMemberDeclaratorList.
+	VisitCCMemberDeclaratorList(ctx *CCMemberDeclaratorListContext) interface{}
+
+	// Visit a parse tree produced by SuckCParser#cCMemberDeclarator.
+	VisitCCMemberDeclarator(ctx *CCMemberDeclaratorContext) interface{}
+
+	// Visit a parse tree produced by SuckCParser#cCBitField.
+	VisitCCBitField(ctx *CCBitFieldContext) interface{}
+
+	// Visit a parse tree produced by SuckCParser#cCEnumSpecifier.
+	VisitCCEnumSpecifier(ctx *CCEnumSpecifierContext) interface{}
+
+	// Visit a parse tree produced by SuckCParser#cCEnumeratorList.
+	VisitCCEnumeratorList(ctx *CCEnumeratorListContext) interface{}
+
+	// Visit a parse tree produced by SuckCParser#cCEnumerator.
+	VisitCCEnumerator(ctx *CCEnumeratorContext) interface{}
+
+	// Visit a parse tree produced by SuckCParser#cCTypeofSpecifier.
+	VisitCCTypeofSpecifier(ctx *CCTypeofSpecifierContext) interface{}
+
+	// Visit a parse tree produced by SuckCParser#cCTypeName.
+	VisitCCTypeName(ctx *CCTypeNameContext) interface{}
+
+	// Visit a parse tree produced by SuckCParser#cCIdentifier.
+	VisitCCIdentifier(ctx *CCIdentifierContext) interface{}
+
+	// Visit a parse tree produced by SuckCParser#cCDeclarator.
+	VisitCCDeclarator(ctx *CCDeclaratorContext) interface{}
+
+	// Visit a parse tree produced by SuckCParser#cCPlainDeclarator.
+	VisitCCPlainDeclarator(ctx *CCPlainDeclaratorContext) interface{}
+
+	// Visit a parse tree produced by SuckCParser#cCPointerOperator.
+	VisitCCPointerOperator(ctx *CCPointerOperatorContext) interface{}
+
+	// Visit a parse tree produced by SuckCParser#cCPointerQualifier.
+	VisitCCPointerQualifier(ctx *CCPointerQualifierContext) interface{}
+
+	// Visit a parse tree produced by SuckCParser#cCDirectDeclarator.
+	VisitCCDirectDeclarator(ctx *CCDirectDeclaratorContext) interface{}
+
+	// Visit a parse tree produced by SuckCParser#cCPlainDirectDeclarator.
+	VisitCCPlainDirectDeclarator(ctx *CCPlainDirectDeclaratorContext) interface{}
+
+	// Visit a parse tree produced by SuckCParser#cCDirectDeclaratorSuffix.
+	VisitCCDirectDeclaratorSuffix(ctx *CCDirectDeclaratorSuffixContext) interface{}
+
+	// Visit a parse tree produced by SuckCParser#cCPlainDirectDeclaratorSuffix.
+	VisitCCPlainDirectDeclaratorSuffix(ctx *CCPlainDirectDeclaratorSuffixContext) interface{}
+
+	// Visit a parse tree produced by SuckCParser#cCAbstractDeclarator.
+	VisitCCAbstractDeclarator(ctx *CCAbstractDeclaratorContext) interface{}
+
+	// Visit a parse tree produced by SuckCParser#cCAbstractDirectDeclarator.
+	VisitCCAbstractDirectDeclarator(ctx *CCAbstractDirectDeclaratorContext) interface{}
+
+	// Visit a parse tree produced by SuckCParser#cCAbstractDirectDeclaratorSuffix.
+	VisitCCAbstractDirectDeclaratorSuffix(ctx *CCAbstractDirectDeclaratorSuffixContext) interface{}
+
+	// Visit a parse tree produced by SuckCParser#cCArraySuffix.
+	VisitCCArraySuffix(ctx *CCArraySuffixContext) interface{}
+
+	// Visit a parse tree produced by SuckCParser#cCFunctionSuffix.
+	VisitCCFunctionSuffix(ctx *CCFunctionSuffixContext) interface{}
+
+	// Visit a parse tree produced by SuckCParser#cCParameterTypeList.
+	VisitCCParameterTypeList(ctx *CCParameterTypeListContext) interface{}
+
+	// Visit a parse tree produced by SuckCParser#cCParameterDeclaration.
+	VisitCCParameterDeclaration(ctx *CCParameterDeclarationContext) interface{}
+
+	// Visit a parse tree produced by SuckCParser#cCInitDeclaratorList.
+	VisitCCInitDeclaratorList(ctx *CCInitDeclaratorListContext) interface{}
+
+	// Visit a parse tree produced by SuckCParser#cCInitDeclarator.
+	VisitCCInitDeclarator(ctx *CCInitDeclaratorContext) interface{}
+
+	// Visit a parse tree produced by SuckCParser#cCInitializerClause.
+	VisitCCInitializerClause(ctx *CCInitializerClauseContext) interface{}
+
+	// Visit a parse tree produced by SuckCParser#cCBracedInitList.
+	VisitCCBracedInitList(ctx *CCBracedInitListContext) interface{}
+
+	// Visit a parse tree produced by SuckCParser#cCCompoundStatement.
+	VisitCCCompoundStatement(ctx *CCCompoundStatementContext) interface{}
+
+	// Visit a parse tree produced by SuckCParser#cCBlockItem.
+	VisitCCBlockItem(ctx *CCBlockItemContext) interface{}
+
+	// Visit a parse tree produced by SuckCParser#cCLinkageSpecification.
+	VisitCCLinkageSpecification(ctx *CCLinkageSpecificationContext) interface{}
+
+	// Visit a parse tree produced by SuckCParser#cCStatement.
+	VisitCCStatement(ctx *CCStatementContext) interface{}
+
+	// Visit a parse tree produced by SuckCParser#cCExpression.
+	VisitCCExpression(ctx *CCExpressionContext) interface{}
+
+	// Visit a parse tree produced by SuckCParser#cCAssignmentExpression.
+	VisitCCAssignmentExpression(ctx *CCAssignmentExpressionContext) interface{}
+
+	// Visit a parse tree produced by SuckCParser#cCAssignmentOperator.
+	VisitCCAssignmentOperator(ctx *CCAssignmentOperatorContext) interface{}
+
+	// Visit a parse tree produced by SuckCParser#cCConditionalExpression.
+	VisitCCConditionalExpression(ctx *CCConditionalExpressionContext) interface{}
+
+	// Visit a parse tree produced by SuckCParser#cCLogicalOrExpression.
+	VisitCCLogicalOrExpression(ctx *CCLogicalOrExpressionContext) interface{}
+
+	// Visit a parse tree produced by SuckCParser#cCLogicalAndExpression.
+	VisitCCLogicalAndExpression(ctx *CCLogicalAndExpressionContext) interface{}
+
+	// Visit a parse tree produced by SuckCParser#cCInclusiveOrExpression.
+	VisitCCInclusiveOrExpression(ctx *CCInclusiveOrExpressionContext) interface{}
+
+	// Visit a parse tree produced by SuckCParser#cCExclusiveOrExpression.
+	VisitCCExclusiveOrExpression(ctx *CCExclusiveOrExpressionContext) interface{}
+
+	// Visit a parse tree produced by SuckCParser#cCAndExpression.
+	VisitCCAndExpression(ctx *CCAndExpressionContext) interface{}
+
+	// Visit a parse tree produced by SuckCParser#cCEqualityExpression.
+	VisitCCEqualityExpression(ctx *CCEqualityExpressionContext) interface{}
+
+	// Visit a parse tree produced by SuckCParser#cCRelationalExpression.
+	VisitCCRelationalExpression(ctx *CCRelationalExpressionContext) interface{}
+
+	// Visit a parse tree produced by SuckCParser#cCAdditiveExpression.
+	VisitCCAdditiveExpression(ctx *CCAdditiveExpressionContext) interface{}
+
+	// Visit a parse tree produced by SuckCParser#cCMultiplicativeExpression.
+	VisitCCMultiplicativeExpression(ctx *CCMultiplicativeExpressionContext) interface{}
+
+	// Visit a parse tree produced by SuckCParser#cCUnaryExpression.
+	VisitCCUnaryExpression(ctx *CCUnaryExpressionContext) interface{}
+
+	// Visit a parse tree produced by SuckCParser#cCUnaryOperator.
+	VisitCCUnaryOperator(ctx *CCUnaryOperatorContext) interface{}
+
+	// Visit a parse tree produced by SuckCParser#cCPostfixExpression.
+	VisitCCPostfixExpression(ctx *CCPostfixExpressionContext) interface{}
+
+	// Visit a parse tree produced by SuckCParser#cCPostfixSuffix.
+	VisitCCPostfixSuffix(ctx *CCPostfixSuffixContext) interface{}
+
+	// Visit a parse tree produced by SuckCParser#cCArgumentExpressionList.
+	VisitCCArgumentExpressionList(ctx *CCArgumentExpressionListContext) interface{}
+
+	// Visit a parse tree produced by SuckCParser#cCPrimaryExpression.
+	VisitCCPrimaryExpression(ctx *CCPrimaryExpressionContext) interface{}
+
+	// Visit a parse tree produced by SuckCParser#cCConstantExpression.
+	VisitCCConstantExpression(ctx *CCConstantExpressionContext) interface{}
+
 	// Visit a parse tree produced by SuckCParser#blockDeclaration.
 	VisitBlockDeclaration(ctx *BlockDeclarationContext) interface{}
 

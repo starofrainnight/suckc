@@ -180,6 +180,11 @@ func collectFileDecl(ctx *parser.SimpleDeclarationContext, a *Analyzer) error {
 // spellingOf renders a declSpecifierSeq as type text: the terminal texts
 // joined with single spaces, minus storage/function specifiers and
 // attributes. Auto is never part of a recorded spelling (callers check).
+//
+// The result is canonicalized, because the deduction tables switch on one
+// spelling per type: without it a variable declared "unsigned long int"
+// reaches usualArith as an unranked type and every arithmetic use of it is
+// rejected, even though that is valid C89.
 func spellingOf(seq parser.IDeclSpecifierSeqContext) string {
 	if seq == nil {
 		return ""
@@ -216,7 +221,7 @@ func spellingOf(seq parser.IDeclSpecifierSeqContext) string {
 		}
 	}
 	walk(seq)
-	return joinSpaces(parts)
+	return canonicalSpelling(joinSpaces(parts))
 }
 
 func joinSpaces(parts []string) string {

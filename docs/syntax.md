@@ -125,6 +125,145 @@ The braces alone are not enough to introduce a definition:
 int C(void) { int a; return a; }
 ```
 
+## 7. C-scope regions
+
+Two pragmas delimit a region whose body is parsed with the C dialect rules
+instead of the SuckC rules. Regions may appear at file scope and inside a
+function body:
+
+```c
+#pragma c_scope_begin
+#include <stdio.h>
+void hello(void) { printf("hi\n"); }
+#pragma c_scope_end
+
+void myMain(void) {
+    #pragma c_scope_begin
+    hello();
+    #pragma c_scope_end
+    hello();
+}
+```
+
+Marker rules:
+
+- Exactly `#pragma`, one or more spaces or tabs, then `c_scope_begin` /
+  `c_scope_end`. Trailing spaces, tabs and a CR (CRLF line endings) are part
+  of the marker. Any *other* trailing content (a word, a comment) makes the
+  line an ordinary preprocessor directive and the region stays unopened.
+- Nested regions are a syntax error.
+- An unterminated region is a syntax error.
+
+The body is opaque to SuckC analysis: it is never treated as SuckC
+declarations, and the same tokens outside a region keep their SuckC meaning.
+Because the body is C rather than SuckC, `auto` and `const` inside a region
+are C constructs — they are neither rejected nor used to deduce a type.
+
+### What the body accepts
+
+Declarations, in the C dialect: multi-word and vendor type specifiers,
+pointer/array/function declarators, comma-separated init-declarator lists,
+bitfields, `typedef`, enumerations, struct/union/enum definitions including
+anonymous members, function definitions with K&R parameter lists, and
+`extern "C" { ... }`. Function bodies use a C expression and statement
+subgrammar. Vendor extensions pass through: `__attribute__` (both
+spellings), `__declspec`, `__typeof__`, `typeof`, `__asm__` labels,
+`__extension__`, `restrict`, and pointer modifiers such as `__packed`,
+`__sptr`, `__w64`, `__ptr32`.
+
+Constructs that are not C are rejected, not passed through: `namespace`,
+`class`, and templates are syntax errors inside a region, exactly as they are
+outside one. A declaration the C dialect does not cover is a syntax error —
+the body is never silently reinterpreted as an opaque token run.
+
+Two limitations are deliberate and current:
+
+- The shift operators `<<` and `>>` are not available inside a region.
+- A name spelled with a SuckC keyword token can be declared — glibc's
+  `typedef int wchar_t;` is the case that motivates it — but not yet used as
+  a type, because doing so needs a table of typedef names.
+
+### Translation rules
+
+- Both markers are dropped from the generated `.c`, so a downstream C
+  compiler never sees them. A preprocessor line marker left behind by
+  `gcc -E` (`# 42 "vendor.h" 1`) is dropped for the same reason, and so are
+  the four wrapper tokens of an `extern "C" { ... }` specification, which is
+  not valid C89. Only whole marker lines vanish; the newline that ended one
+  stays, leaving a blank line. Nothing else in the body is rewritten — vendor
+  extensions such as `__attribute__` and `#pragma pack(...)` pass through
+  untouched, because removing them could change struct layout.
+- A lexical error aborts translation, inside a region as much as outside it.
+  The lexer drops the offending characters, and verbatim emission would
+  otherwise copy the damaged text into the `.c` without a word.
+
+### Cross-region calls
+
+Declarations inside a region are read, not just passed through: every
+function prototype becomes a signature and every `typedef` a type name.
+A call written in SuckC code to a function that only a region declares is
+checked against that prototype's parameter count.
+
+- `void f(void);` declares zero parameters. `int f();` declares an
+  unspecified parameter list and therefore constrains nothing — a call to it
+  is always accepted, whatever the argument count.
+- A declaration with no prototype never conflicts with another declaration of
+  the same function. Two prototypes that disagree on parameter count or on
+  variadic-ness are an error.
+- The diagnostic names the original header and line, not the preprocessed
+  file: `too few arguments in call to 'vendor_init': 0 given, C region
+  declares 1 (declared at vendor.h:34)`.
+- A name you declare in SuckC code is not checked, even if a region also
+  declares it. Redeclaring a vendor prototype in SuckC keeps working.
+
+Argument types are checked by shape, not by equality. C converts freely
+between arithmetic types, so requiring an exact type match would reject
+nearly every real call. What is actually incompatible:
+
+- A pointer is never compatible with an arithmetic type, and an array
+  argument decays to a pointer first.
+- An integer constant of value zero is a null pointer constant and satisfies
+  any pointer parameter. `0x0` and `0u` qualify; `0xFF` does not.
+- `void` is compatible only with `void *`.
+- A tagged `struct`, `union` or `enum` only with the identical tag.
+- Two pointers are always accepted. The pointee is deliberately not
+  compared, so `char *` satisfies `const char *` and `void *`.
+- An argument the checker cannot type — a compound expression, a call
+  result, a name it cannot resolve — is skipped, never reported.
+
+The check errs toward silence. Missing a bad call is recoverable; rejecting
+a good one is not.
+
+Type spellings are canonicalized before any of this, so equivalent spellings
+compare equal: `unsigned long` is `long unsigned int` is `unsigned`, `int`
+may be spelled with any legal length and signedness word, and `char`,
+`signed char` and `unsigned char` stay three distinct types. A typedef name
+in a region resolves to the type it aliases, which is why a `size_t`
+parameter matches an `unsigned long` argument even though glibc defines it
+as `long unsigned int`.
+
+#### Shapes the checker cannot see
+
+A statement-level call with a single identifier argument is ambiguous in the
+grammar, and C resolves it by name lookup rather than by syntax:
+`vendor_init(flags);` may mean "call `vendor_init` with `flags`" or "declare
+`flags` of type `vendor_init`". SuckC has no typedef table at this point, so
+a single-identifier argument is read as a declaration, and the argument is
+invisible to both checks. A declaration is only read as a call when the type
+name is a function some region actually declares; otherwise it stays a
+declaration.
+
+`vendor_init(&flags);` is lost the same way — the `&` reads as a reference
+declarator. And `vendor_init(a, b);` with two identifier arguments does not
+parse at all, because a SuckC declaration holds a single declarator. Making
+these work needs a comma-separated declarator list in SuckC declarations, or
+a pass that resolves the ambiguity from the collected signatures before
+parsing statements.
+
+A `typedef` name that happens to be spelled like a SuckC keyword —
+`wchar_t`, `bool`, `constexpr` — can be declared inside a region but not used
+as a type there.
+
 ### Maintenance rule
 
 This document must stay in sync with the compiler. Whenever code changes

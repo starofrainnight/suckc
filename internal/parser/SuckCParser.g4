@@ -219,7 +219,7 @@ expressionStatement: expression? Semi;
 
 compoundStatement: LeftBrace statementSeq? RightBrace;
 
-statementSeq: statement+;
+statementSeq: (statement | cImportRegion)+;
 
 selectionStatement:
     If LeftParen condition RightParen statement (Else statement)?
@@ -268,7 +268,348 @@ declaration:
     //| namespaceDefinition
     | emptyDeclaration_
     | attributeDeclaration
+    | cImportRegion
 ;
+
+/*======================================================================
+C-scope region contents: C declarations as they appear in a
+preprocessed header file, plus just enough statement and expression
+grammar to parse a function body, since a region may also wrap inline
+definitions.
+
+Two design decisions worth stating, because each fixes a problem that is
+invisible until it bites:
+
+1. Attribute, asm-label and typeof spellings (__attribute__, __attribute,
+   __declspec, __asm__, __asm, __typeof__, __typeof, typeof, typeof, and
+   the Keil __at / __irq family) are all plain Identifier tokens, and each
+   is spelled as an identifier followed by a parenthesised group. They are
+   matched positionally instead: an attribute is only offered where a
+   declarator cannot start, or after a completed declarator, so
+   "int f(int a);" never resolves its "f" as an attribute -- the reading
+   that treats f(int a) as an attribute leaves no declarator before the
+   ';' and dies in ANTLR's viability check. This avoids touching
+   SuckCLexer.g4 at all, which matters because adding lexer rules for
+   those spellings would change tokenization for the whole language.
+
+2. cCExternalDeclaration separates function definitions from declarations
+   STRUCTURALLY, never by rule order. When two alternatives both match,
+   ANTLR silently prefers the first with no diagnostic at all, so an
+   order-based split turns "int C { int a; };" into a bogus function
+   definition named C and nothing complains. Here a definition requires a
+   declarator that may end in a function suffix (cCDeclarator), while the
+   braced-initializer alternative uses cCPlainDeclarator, which cannot end
+   that way. The two readings are therefore never both viable.
+
+Deliberate gaps:
+
+  - '<<' and '>>' are not lexer tokens in SuckCLexer.g4 (only '<<=' and
+    '>>=' are), so cCExpression omits the shift operators. Headers spell
+    shifts through macros, which cpp has already expanded away.
+  - A K&R parameter list is indistinguishable from a prototype with
+    unnamed parameters: "f(a, b)" reads as two parameters whose types are
+    the identifiers a and b.
+  - "int f() { ... };" -- a definition followed by a stray semicolon --
+    is rejected. C89 rejects it too; this follows the standard rather
+    than the habit.
+  - restrict and the vendor storage words (__packed, __sptr, __irq,
+    __at, ...) are Identifier tokens, so they pass through the bare
+    -Identifier type-specifier path. Token consumption is identical either
+    way; recovering the correct type needs the symbol table Stage 2b adds.
+======================================================================*/
+
+// A C-scope region: two pragma markers around C code. Valid at file scope
+// and inside compoundStatement.
+//
+// The body is a list of block items rather than a declaration sequence,
+// because a region is not limited to declarations. At file scope a
+// vendor header contributes declarations; inside a function body the
+// natural region wraps statements, which is the shape the language
+// documentation shows. cCBlockItem covers both, and '*' keeps an empty
+// region valid -- frontend records that as a Region whose StartTok is
+// greater than its EndTok.
+cImportRegion: CScopeBegin cCBlockItem* CScopeEnd;
+
+cCDeclarationSeq: cCExternalDeclaration+;
+
+cCExternalDeclaration:
+      cCAttributesOpt cCDeclSpecifiers cCDeclarator cCDeclarationSeq? cCCompoundStatement
+    | cCAttributesOpt cCDeclSpecifiers cCInitDeclaratorList? Semi
+;
+
+cCAttributesOpt: cCAttribute*;
+
+cCAttribute: cCAttributeName cCParenGroup;
+
+// __attribute__, __attribute, __declspec, __asm__, __asm, asm, and the
+// Keil/IAR suffixes (__at, __irq, __align) all land here. See note 1 in the
+// block comment above for why no lexer rule distinguishes them.
+cCAttributeName: Identifier | Asm;
+
+// Balanced parentheses over arbitrary tokens. SuckCParser's own
+// balancedTokenSeq requires at least one token and nests only brackets,
+// so it cannot stand in for an empty "()" nor for the leading '(' of the
+// double-parenthesized attribute form.
+cCParenGroup: LeftParen (cCParenGroup | ~(LeftParen | RightParen))* RightParen;
+
+// Deliberately not SuckCParser's storageClassSpecifier / typeSpecifier:
+// those omit Typedef and Auto, and typeSpecifier drags in decltype,
+// templates and Auto-as-a-type, none of which belong to C.
+//
+// The split into two alternatives is what stops the specifier list from
+// swallowing the declarator. "typedef int x;" and "size_t x;" differ only
+// in whether the identifier names a new type or one already known, and the
+// grammar cannot know which -- C decides it with the symbol table. Left to
+// a bare Identifier inside cCDeclSpecifier, the '+' loop keeps consuming and
+// ANTLR resolves the ambiguity by taking the greedy branch, silently: no
+// error, no warning, and the declarator is simply gone.
+//
+// So the first alternative cannot end on a bare identifier. When both
+// readings of "typedef int x;" are viable -- specifiers "typedef int" plus
+// declarator "x", or specifiers "typedef int x" and no declarator -- the
+// first alternative is the one that leaves the declarator, and it is tried
+// first. The second alternative carries a leading typedef name, which is the
+// only reading left for "size_t x;" once "size_t" cannot be part of a
+// "typedef unsigned long"-shaped specifier run.
+cCDeclSpecifiers
+    : cCDeclSpecifierPart+
+    | cCDeclSpecifierPart* cCTypedefName cCDeclSpecifierPart*
+    ;
+
+cCDeclSpecifierPart
+    : Typedef
+    | Extern StringLiteral
+    | Extern
+    | Static
+    | Auto
+    | Register
+    | Inline
+    | cCQualifier
+    | cCBuiltinTypeSpecifier
+    | cCStructOrUnionSpecifier
+    | cCEnumSpecifier
+    | cCTypeofSpecifier
+    ;
+
+cCQualifier: Const | Volatile | Constexpr | Restrict;
+
+// A name already known to be a type. Kept out of cCBuiltinTypeSpecifier on
+// purpose -- see cCDeclSpecifiers.
+cCTypedefName: Identifier;
+
+cCBuiltinTypeSpecifier:
+      Char | Short | Int | Long | Float | Double | Signed | Unsigned | Bool | Void
+;
+
+cCStructOrUnionSpecifier:
+    (Struct | Union) cCAttributesOpt cCIdentifier? (LeftBrace cCMemberDeclaration* RightBrace)?
+;
+
+cCMemberDeclaration: cCAttributesOpt cCDeclSpecifiers cCMemberDeclaratorList? cCBitField? Semi;
+
+cCMemberDeclaratorList: cCMemberDeclarator (Comma cCMemberDeclarator)*;
+
+cCMemberDeclarator: cCDeclarator;
+
+// "int : 0;" -- an unnamed bitfield. Optional rather than an alternative so
+// that "int a : 3;", "int : 0;" and an anonymous member (neither present)
+// all reduce through one path instead of competing as alternatives.
+cCBitField: Colon cCConstantExpression;
+
+cCEnumSpecifier: Enum cCAttributesOpt cCIdentifier? (LeftBrace cCEnumeratorList? RightBrace)?;
+
+cCEnumeratorList: cCEnumerator (Comma cCEnumerator)* Comma?;
+
+cCEnumerator: cCIdentifier (Assign cCConstantExpression)?;
+
+cCTypeofSpecifier: Typeof LeftParen (cCTypeName | cCExpression) RightParen;
+
+cCTypeName: cCDeclSpecifiers (cCDeclarator | cCAbstractDeclarator)?;
+
+// Every SuckC keyword that can legitimately spell an ordinary C identifier
+// is accepted here. Inside a C region these words are not SuckC keywords at
+// all -- they are C names -- and the region rules are the only place this
+// rule is reachable, so widening it cannot affect SuckC code. Without this,
+// real headers fail: glibc's stddef.h declares "typedef int wchar_t;" and
+// uchar.h declares char16_t/char32_t, all spelled with SuckC keyword tokens.
+//
+// `true`, `false` and `nullptr` are reached through BooleanLiteral and
+// PointerLiteral, not through True_/False_/Nullptr. Those three lexer rules
+// exist but can never fire: BooleanLiteral and PointerLiteral are declared
+// first and match the same spellings, and a lexer rule referenced only from
+// another lexer rule emits no tokens of its own.
+//
+// Control-flow keywords are deliberately absent. They would create genuine
+// ambiguity with cCStatement (a label "foo:" versus a keyword statement) and
+// no C header spells a declaration with them.
+cCIdentifier: Identifier
+             | Asm | Bool | Mutable | Thread_local
+             | BooleanLiteral | PointerLiteral
+             | Wchar | Char16 | Char32
+             | Constexpr | New | Delete
+             | Template | Typename_ | Namespace;
+
+// cCPlainDeclarator and cCDeclarator are deliberately parallel hierarchies
+// differing only in whether a function suffix is permitted. See note 2 in
+// the block comment above before changing that.
+cCDeclarator: cCAttributesOpt cCPointerOperator* cCDirectDeclarator;
+
+cCPlainDeclarator: cCAttributesOpt cCPointerOperator* cCPlainDirectDeclarator;
+
+cCPointerOperator: Star cCAttributesOpt cCPointerQualifier*;
+
+cCPointerQualifier: cCQualifier | Identifier;
+
+cCDirectDeclarator:
+      cCIdentifier cCDirectDeclaratorSuffix*
+    | LeftParen cCDeclarator RightParen cCDirectDeclaratorSuffix*
+;
+
+cCPlainDirectDeclarator:
+      cCIdentifier cCPlainDirectDeclaratorSuffix*
+    | LeftParen cCPlainDeclarator RightParen cCPlainDirectDeclaratorSuffix*
+;
+
+// A postfix attribute also covers the Keil and IAR address/interrupt
+// suffixes, "int vector __at(0x2000);", which have the same shape.
+cCDirectDeclaratorSuffix: cCArraySuffix | cCFunctionSuffix | cCAttribute;
+
+cCPlainDirectDeclaratorSuffix: cCArraySuffix | cCAttribute;
+
+// A declarator with no identifier, as in the parameter of "int f(int)"
+// and the type name of "(int *)". It must be able to consume something, or
+// it would compete with the optional named declarator above.
+cCAbstractDeclarator: cCAttributesOpt (cCPointerOperator+ cCAbstractDirectDeclarator? | cCAbstractDirectDeclarator);
+
+cCAbstractDirectDeclarator:
+      cCAbstractDirectDeclaratorSuffix+
+    | LeftParen cCAbstractDeclarator RightParen cCAbstractDirectDeclaratorSuffix*
+;
+
+cCAbstractDirectDeclaratorSuffix: cCArraySuffix | cCFunctionSuffix | cCAttribute;
+
+cCArraySuffix: LeftBracket cCConstantExpression? RightBracket;
+
+cCFunctionSuffix: LeftParen cCParameterTypeList? RightParen cCAttributesOpt;
+
+cCParameterTypeList:
+      cCParameterDeclaration (Comma cCParameterDeclaration)* (Comma Ellipsis)?
+    | Ellipsis
+;
+
+cCParameterDeclaration: cCAttributesOpt cCDeclSpecifiers (cCDeclarator | cCAbstractDeclarator)?;
+
+cCInitDeclaratorList: cCInitDeclarator (Comma cCInitDeclarator)*;
+
+cCInitDeclarator:
+      cCDeclarator Assign cCInitializerClause
+    | cCPlainDeclarator cCBracedInitList
+    | cCDeclarator
+;
+
+cCInitializerClause: cCExpression | cCBracedInitList;
+
+cCBracedInitList: LeftBrace (cCInitializerClause (Comma? cCInitializerClause)*)? RightBrace;
+
+cCCompoundStatement: LeftBrace cCBlockItem* RightBrace;
+
+cCBlockItem: cCDeclarationSeq | cCStatement | cCLinkageSpecification;
+
+cCLinkageSpecification: Extern StringLiteral LeftBrace cCDeclarationSeq? RightBrace;
+
+cCStatement:
+      cCCompoundStatement
+    | If LeftParen cCExpression RightParen cCStatement (Else cCStatement)?
+    | Switch LeftParen cCExpression RightParen cCStatement
+    | While LeftParen cCExpression RightParen cCStatement
+    | Do cCStatement While LeftParen cCExpression RightParen Semi
+    | For LeftParen (cCDeclarationSeq | cCExpression? Semi) cCExpression? Semi cCExpression? RightParen cCStatement
+    | Case cCConstantExpression Colon
+    | Default Colon
+    | Break Semi
+    | Continue Semi
+    | Return cCExpression? Semi
+    | Goto cCIdentifier Semi
+    | cCIdentifier Colon cCStatement?
+    | cCExpression? Semi
+;
+
+cCExpression: cCAssignmentExpression;
+
+cCAssignmentExpression:
+      cCUnaryExpression cCAssignmentOperator cCAssignmentExpression
+    | cCConditionalExpression
+;
+
+cCAssignmentOperator:
+      Assign | PlusAssign | MinusAssign | StarAssign | DivAssign | ModAssign
+    | AndAssign | OrAssign | XorAssign | LeftShiftAssign | RightShiftAssign
+;
+
+cCConditionalExpression:
+      cCLogicalOrExpression (Question cCExpression Colon cCConditionalExpression)?
+;
+
+cCLogicalOrExpression: cCLogicalAndExpression (OrOr cCLogicalAndExpression)*;
+
+cCLogicalAndExpression: cCInclusiveOrExpression (AndAnd cCInclusiveOrExpression)*;
+
+cCInclusiveOrExpression: cCExclusiveOrExpression (Or cCExclusiveOrExpression)*;
+
+cCExclusiveOrExpression: cCAndExpression (Caret cCAndExpression)*;
+
+cCAndExpression: cCEqualityExpression (And cCEqualityExpression)*;
+
+cCEqualityExpression: cCRelationalExpression ((Equal | NotEqual) cCRelationalExpression)*;
+
+cCRelationalExpression: cCAdditiveExpression ((Less | Greater | LessEqual | GreaterEqual) cCAdditiveExpression)*;
+
+cCAdditiveExpression: cCMultiplicativeExpression ((Plus | Minus) cCMultiplicativeExpression)*;
+
+cCMultiplicativeExpression: cCUnaryExpression ((Star | Div | Mod) cCUnaryExpression)*;
+
+cCUnaryExpression:
+      PlusPlus cCUnaryExpression
+    | MinusMinus cCUnaryExpression
+    | cCUnaryOperator cCUnaryExpression
+    | LeftParen cCTypeName RightParen cCUnaryExpression
+    | Sizeof cCUnaryExpression
+    | cCPostfixExpression
+;
+
+cCUnaryOperator: And | Star | Plus | Minus | Tilde | Not;
+
+cCPostfixExpression: cCPrimaryExpression cCPostfixSuffix*;
+
+cCPostfixSuffix:
+      LeftBracket cCExpression? RightBracket
+    | LeftParen cCArgumentExpressionList? RightParen
+    | Dot cCIdentifier
+    | Arrow cCIdentifier
+    | PlusPlus
+    | MinusMinus
+;
+
+cCArgumentExpressionList: cCAssignmentExpression (Comma cCAssignmentExpression)*;
+
+// The lexer has no aggregate Literal token, so the literal forms are
+// listed individually.
+cCPrimaryExpression:
+      cCIdentifier
+    | DecimalLiteral
+    | OctalLiteral
+    | HexadecimalLiteral
+    | BinaryLiteral
+    | FloatingLiteral
+    | CharacterLiteral
+    | StringLiteral
+    | UserDefinedLiteral
+    | BooleanLiteral
+    | PointerLiteral
+    | LeftParen cCExpression RightParen
+;
+
+cCConstantExpression: cCConditionalExpression;
 
 blockDeclaration:
     simpleDeclaration
