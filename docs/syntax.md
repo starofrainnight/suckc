@@ -205,6 +205,32 @@ Two limitations are deliberate and current:
   The lexer drops the offending characters, and verbatim emission would
   otherwise copy the damaged text into the `.c` without a word.
 
+#### Dropping `extern "C"`
+
+An `extern "C"` specification is removed from the generated `.c` rather than
+emitted into it. The brace form loses all four wrapper tokens — `extern`,
+the string literal, `{`, `}` — and the single-declaration form
+`extern "C" int x;` loses the first two. The declarations between the
+braces are kept. It applies whether the specification was written in SuckC
+code or inside a region.
+
+This is known, deliberate behaviour:
+
+- `extern "C"` is not valid C89. Left in place, `gcc -std=c89` rejects it
+  outright: `error: expected identifier or '(' before string constant`.
+- Removing it changes no meaning. A declaration at file scope already has C
+  linkage in C89, so `extern "C" { int x; }` and `int x;` declare exactly
+  the same thing.
+- Block scope is rejected by the parser before the difference could matter.
+  `void f(void) { extern "C" int x; }` is a syntax error, so the wrapper is
+  never dropped where it would silently change storage duration — removing
+  `extern` there would leave `int x;`, an automatic local variable instead
+  of an external declaration.
+- Under `gcc -E -x c`, a header's own `extern "C"` has usually already gone:
+  preprocessing as C makes the preprocessor drop `#ifdef __cplusplus`
+  blocks. What reaches suckc is a specification written literally in the
+  `.suckc`.
+
 ### Cross-region calls
 
 Declarations inside a region are read, not just passed through: every
