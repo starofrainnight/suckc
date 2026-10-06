@@ -169,17 +169,20 @@ func (r *ParseResult) collectLinkageSpecs() {
 
 // ToErase returns the token indexes the backend must drop from the emitted
 // C: both markers of every region (visible `#pragma c_scope_*` tokens,
-// which Keil/IAR reject as unknown pragmas), every line marker (hidden
-// `# N "file"` directives, which are not valid C89 outside `#line`), and the
-// wrapper tokens of every linkage specification. The result is sorted
+// which Keil/IAR reject as unknown pragmas), and the wrapper tokens of every
+// linkage specification (`extern "C" {`, illegal C89). The result is sorted
 // ascending.
+//
+// gcc -E line markers are deliberately NOT here. They name the file and line
+// each surviving piece of the translation unit came from, so they are more
+// accurate in the output than anything we could reconstruct, and the
+// compiler that produced them also consumes them. LineMarkers stays
+// populated for SourceAt, which reports diagnostics in those same
+// coordinates.
 func (r *ParseResult) ToErase() []int {
-	out := make([]int, 0, 2*len(r.Regions)+len(r.LineMarkers)+len(r.LinkageSpecToks))
+	out := make([]int, 0, 2*len(r.Regions)+len(r.LinkageSpecToks))
 	for _, rg := range r.Regions {
 		out = append(out, rg.StartTok-1, rg.EndTok+1)
-	}
-	for _, m := range r.LineMarkers {
-		out = append(out, m.TokIdx)
 	}
 	out = append(out, r.LinkageSpecToks...)
 	sort.Ints(out)

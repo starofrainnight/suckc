@@ -186,13 +186,21 @@ Two limitations are deliberate and current:
 ### Translation rules
 
 - Both markers are dropped from the generated `.c`, so a downstream C
-  compiler never sees them. A preprocessor line marker left behind by
-  `gcc -E` (`# 42 "vendor.h" 1`) is dropped for the same reason, and so are
-  the four wrapper tokens of an `extern "C" { ... }` specification, which is
-  not valid C89. Only whole marker lines vanish; the newline that ended one
-  stays, leaving a blank line. Nothing else in the body is rewritten — vendor
-  extensions such as `__attribute__` and `#pragma pack(...)` pass through
-  untouched, because removing them could change struct layout.
+  compiler never sees them. So are the four wrapper tokens of an
+  `extern "C" { ... }` specification, which is not valid C89. Only whole
+  marker lines vanish; the newline that ended one stays, leaving a blank
+  line. Nothing else in the body is rewritten — vendor extensions such as
+  `__attribute__` and `#pragma pack(...)` pass through untouched, because
+  removing them could change struct layout.
+- A preprocessor line marker left by `gcc -E` (`# 42 "vendor.h" 1`) is
+  passed through unchanged. It already names the file and line each
+  surviving declaration came from, so it is more accurate than anything
+  reachable by reconstruction, and the compiler that emitted it also
+  consumes it: a diagnostic raised while compiling the generated `.c`
+  is reported as `vendor.h:34`, not as a line of the `.c`. Diagnostics
+  raised by suckc itself use the same table. Erasing a marker would only
+  lose that, since the tokens the translation does drop leave their
+  newline behind and so shift no line numbers.
 - A lexical error aborts translation, inside a region as much as outside it.
   The lexer drops the offending characters, and verbatim emission would
   otherwise copy the damaged text into the `.c` without a word.

@@ -27,9 +27,9 @@ import (
 // nil or empty means pure identity emission. A substitution applies to
 // the listed token whatever channel it is on — a visible terminal as well
 // as a hidden token between terminals. Generate seeds the map with
-// ParseResult.ToErase, so the C-scope region markers and the gcc -E line
-// markers are dropped from the output while the region body between them
-// passes through byte for byte.
+// ParseResult.ToErase, so the C-scope region markers and the linkage-spec
+// wrappers are dropped from the output while the region body between them,
+// and the gcc -E line markers, pass through unchanged.
 func Generate(res *frontend.ParseResult, subs map[int]string) (string, error) {
 	if res == nil || res.Tree == nil {
 		return "", errors.New("backend: no parse tree")
@@ -37,7 +37,7 @@ func Generate(res *frontend.ParseResult, subs map[int]string) (string, error) {
 
 	// Effective substitutions: the caller's replacements plus the tokens
 	// that must vanish from the emitted C.
-	repl := make(map[int]string, len(subs)+2*len(res.Regions)+len(res.LineMarkers))
+	repl := make(map[int]string, len(subs)+2*len(res.Regions)+len(res.LinkageSpecToks))
 	for idx, text := range subs {
 		repl[idx] = text
 	}

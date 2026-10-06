@@ -11,13 +11,14 @@ import (
 
 var gccLineMarkerRE = regexp.MustCompile(`(?m)^# \d+ "[^"]*"(?: \d+)*$`)
 
-// eraseMarkers returns src with the region pragmas and every gcc -E line
-// marker replaced by nothing, the exact text Generate must produce (the
-// newlines that ended the marker lines survive as blank lines).
+// eraseMarkers returns src with the region pragmas removed, the exact text
+// Generate must produce (the newlines that ended the marker lines survive as
+// blank lines). gcc -E line markers are expected to survive, so they are
+// left alone here.
 func eraseMarkers(src string) string {
 	out := strings.Replace(src, "#pragma c_scope_begin", "", 1)
 	out = strings.Replace(out, "#pragma c_scope_end", "", 1)
-	return gccLineMarkerRE.ReplaceAllString(out, "")
+	return out
 }
 
 // The emitted C must lose both region markers while every byte of the
@@ -49,12 +50,14 @@ func TestGenerateErasesRegionMarkersKeepsBody(t *testing.T) {
 	}
 }
 
-// Real gcc -E output: the region markers AND every `# N "file"` line
-// marker disappear, everything else round trips.
+// Real gcc -E output: the region markers disappear, the `# N "file"` line
+// markers survive verbatim, everything else round trips. The markers are
+// hidden tokens that still name the file and line each declaration came
+// from, so they stay; the diagnostic side (SourceAt) reads the same table.
 // Fixture command (run from /tmp/opencode/cscope):
 //
 //	gcc -E -x c first.suckc > internal/frontend/testdata/region_line_markers.c
-func TestGenerateErasesLineMarkersFromGccPreprocess(t *testing.T) {
+func TestGenerateKeepsLineMarkersFromGccPreprocess(t *testing.T) {
 	const fixture = "../frontend/testdata/region_line_markers.c"
 	src, err := os.ReadFile(fixture)
 	if err != nil {
@@ -69,10 +72,14 @@ func TestGenerateErasesLineMarkersFromGccPreprocess(t *testing.T) {
 		t.Fatalf("generate: %v", err)
 	}
 
+	kept := 0
 	for _, line := range strings.Split(got, "\n") {
 		if gccLineMarkerRE.MatchString(line) {
-			t.Errorf("line marker survived emission: %q", line)
+			kept++
 		}
+	}
+	if want := len(gccLineMarkerRE.FindAllString(string(src), -1)); kept != want {
+		t.Errorf("kept %d line markers, want %d:\n%s", kept, want, got)
 	}
 	if strings.Contains(got, "c_scope_begin") || strings.Contains(got, "c_scope_end") {
 		t.Errorf("region markers not erased:\n%s", got)
