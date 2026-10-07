@@ -94,6 +94,11 @@ self-contained C sources.
   (`auto i = 12` → `int i = 12`); `--target-bits 16|32|64` selects the
   target integer width (default: host).
 
+## Documentation
+
+See [docs/index.md](docs/index.md) for an index of the documentation under
+`docs/` — the language syntax and naming conventions for users.
+
 ## Build & Run
 
 ```bash
