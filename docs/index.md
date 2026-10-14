@@ -9,3 +9,9 @@ Index of documents under `docs/`.
 - [naming-conventions.md](naming-conventions.md) — SuckC identifier naming
   style. A convention layer (not enforced by the grammar) applied to every
   kind of identifier.
+
+## Contributor-facing
+
+- [architecture.md](architecture.md) — SuckC compiler architecture: package
+  layout, the `.suckc` → `.c` pipeline, and each component's responsibilities.
+  Read this first before working on the compiler internals.
